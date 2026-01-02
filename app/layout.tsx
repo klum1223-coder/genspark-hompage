@@ -3,6 +3,7 @@ import { Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import AdminFloatingButton from '@/components/shared/AdminFloatingButton'
 
 const notoSansKr = Noto_Sans_KR({
   subsets: ['latin'],
@@ -30,6 +31,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <AdminFloatingButton />
       </body>
     </html>
   )

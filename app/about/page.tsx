@@ -167,6 +167,62 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      {/* Location Section */}
+      <section className="section-padding">
+        <div className="container-custom">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-primary mb-4">오시는 길</h2>
+              <div className="w-20 h-1 bg-primary mx-auto mb-6"></div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <div className="text-2xl">📍</div>
+                  <div>
+                    <h4 className="font-bold text-primary mb-1">주소</h4>
+                    <p className="text-gray-700">서울시 강남구 테헤란로 123</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="text-2xl">📞</div>
+                  <div>
+                    <h4 className="font-bold text-primary mb-1">전화</h4>
+                    <p className="text-gray-700">02-1234-5678</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="text-2xl">✉️</div>
+                  <div>
+                    <h4 className="font-bold text-primary mb-1">이메일</h4>
+                    <p className="text-gray-700">info@joosungchurch.com</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="font-bold text-primary mb-3">대중교통 이용</h4>
+                <div className="space-y-2 text-gray-700">
+                  <p><span className="font-semibold">🚇 지하철:</span> 2호선 역삼역 3번 출구 (도보 5분)</p>
+                  <p><span className="font-semibold">🚌 버스:</span> 146, 241, 401, 4319</p>
+                </div>
+                <h4 className="font-bold text-primary mb-3 mt-6">주차 안내</h4>
+                <p className="text-gray-700">교회 지하 주차장 이용 가능 (예배 시간 무료)</p>
+              </div>
+            </div>
+
+            {/* Map Placeholder */}
+            <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
+              <div className="text-center">
+                <div className="text-4xl mb-2">🗺️</div>
+                <p>지도는 실제 배포 시 Google Maps 또는 Kakao Map으로 연동됩니다</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

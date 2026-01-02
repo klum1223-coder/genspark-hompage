@@ -135,6 +135,11 @@ const albumsData: Album[] = [
 const categories = ['전체', '예배', '행사', '선교', '교육', '친교'] as const
 const years = [2024, 2023, 2022]
 
+export const metadata = {
+  title: '교회 사역 - 주성성결교회',
+  description: '주성성결교회의 다양한 사역과 활동 사진을 확인하세요',
+}
+
 export default function GalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState<typeof categories[number]>('전체')
   const [selectedYear, setSelectedYear] = useState<number | 'all'>('all')
@@ -208,7 +213,7 @@ export default function GalleryPage() {
       <section className="bg-gradient-to-br from-primary to-primary-light text-white py-20">
         <div className="container-custom text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 animate-fade-in">
-            우리의 이야기
+            교회 사역
           </h1>
           <p className="text-lg md:text-xl text-gray-100 animate-fade-in-delay">
             함께한 소중한 순간들을 나눕니다
