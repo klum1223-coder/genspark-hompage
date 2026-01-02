@@ -47,8 +47,11 @@ export default function Header() {
           >
             <div className="text-2xl">✝️</div>
             <div className="hidden sm:block">
-              <div className="text-xl font-bold">교회 이름</div>
-              <div className="text-xs text-gray-600">Church Name</div>
+              <div className="text-xl font-bold">주성성결교회</div>
+              <div className="text-xs text-gray-600">Joosung Holiness Church</div>
+            </div>
+            <div className="sm:hidden">
+              <div className="text-lg font-bold">주성성결교회</div>
             </div>
           </Link>
 

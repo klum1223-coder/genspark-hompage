@@ -12,9 +12,9 @@ const notoSansKr = Noto_Sans_KR({
 })
 
 export const metadata: Metadata = {
-  title: '교회 이름 - Church Name',
-  description: '우리 교회에 오신 것을 환영합니다',
-  keywords: ['교회', '예배', '설교', '교회 소식'],
+  title: '주성성결교회 - Joosung Holiness Church',
+  description: '하나님의 사랑으로 함께하는 공동체 - 주성성결교회에 오신 것을 환영합니다',
+  keywords: ['주성성결교회', '성결교회', '교회', '예배', '설교', '교회 소식', '주일예배'],
 }
 
 export default function RootLayout({
