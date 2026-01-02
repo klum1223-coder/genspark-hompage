@@ -1,23 +1,24 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { activePopup, shouldShowPopup, hidePopupForToday, cleanupOldPopupData } from '@/lib/popup-data'
 
 export default function PopupModal() {
   const [isOpen, setIsOpen] = useState(false)
   const [dontShowToday, setDontShowToday] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
 
   useEffect(() => {
-    // 쿠키 확인: 오늘 하루 보지 않기를 선택했는지
-    const hidePopup = localStorage.getItem('hidePopup')
-    const hideDate = localStorage.getItem('hidePopupDate')
-    const today = new Date().toDateString()
+    // 오래된 팝업 데이터 정리
+    cleanupOldPopupData()
 
-    if (hidePopup === 'true' && hideDate === today) {
-      setIsOpen(false)
-    } else {
+    // 팝업 활성화 상태 및 표시 여부 확인
+    if (activePopup.isActive && shouldShowPopup(activePopup.id)) {
       // 페이지 로드 후 0.5초 뒤에 팝업 표시
       const timer = setTimeout(() => {
         setIsOpen(true)
+        setIsAnimating(true)
       }, 500)
       return () => clearTimeout(timer)
     }
@@ -25,102 +26,130 @@ export default function PopupModal() {
 
   const handleClose = () => {
     if (dontShowToday) {
-      localStorage.setItem('hidePopup', 'true')
-      localStorage.setItem('hidePopupDate', new Date().toDateString())
+      hidePopupForToday(activePopup.id)
     }
-    setIsOpen(false)
+    setIsAnimating(false)
+    setTimeout(() => setIsOpen(false), 300) // 애니메이션 후 닫기
+  }
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      handleClose()
+    }
   }
 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+    <div
+      className={`fixed inset-0 z-[100] flex items-center justify-center p-4 transition-opacity duration-300 ${
+        isAnimating ? 'opacity-100' : 'opacity-0'
+      }`}
+      onClick={handleBackdropClick}
+    >
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={handleClose}
-      ></div>
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
       {/* Modal */}
-      <div className="relative bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 overflow-hidden animate-fadeIn">
+      <div
+        className={`relative bg-white rounded-xl shadow-2xl max-w-[500px] w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 ${
+          isAnimating ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+        }`}
+      >
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
+          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white text-gray-400 hover:text-gray-600 transition-colors shadow-md"
           aria-label="닫기"
         >
-          <svg 
-            className="w-6 h-6" 
-            fill="none" 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth="2" 
-            viewBox="0 0 24 24" 
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path d="M6 18L18 6M6 6l12 12"></path>
+            <path d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        {/* Image Section */}
-        <div className="h-64 bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
-          <div className="text-center text-white p-6">
-            <div className="text-5xl mb-4">✝️</div>
-            <h3 className="text-2xl font-bold mb-2">중요 공지</h3>
-            <p className="text-sm text-gray-200">Important Notice</p>
+        {/* Image Section (Optional) */}
+        {activePopup.image && (
+          <div className="relative h-48 bg-gradient-to-br from-primary to-primary-light overflow-hidden">
+            {/* 실제 이미지가 있을 경우 */}
+            {/* <Image src={activePopup.image} alt={activePopup.title} fill className="object-cover" /> */}
+            
+            {/* 임시 플레이스홀더 */}
+            <div className="absolute inset-0 flex items-center justify-center text-white">
+              <div className="text-center">
+                <div className="text-6xl mb-3">✝️</div>
+                <p className="text-sm font-medium opacity-90">교회 이름</p>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Content Section */}
-        <div className="p-6">
-          <h4 className="text-xl font-bold text-primary mb-4">
-            2024년 새해 부흥회 안내
-          </h4>
-          
-          <div className="space-y-3 text-gray-600 text-sm">
-            <p>
-              <strong className="text-primary">일시:</strong> 2024년 1월 15일(월) ~ 17일(수)
-            </p>
-            <p>
-              <strong className="text-primary">시간:</strong> 매일 저녁 7시 30분
-            </p>
-            <p>
-              <strong className="text-primary">장소:</strong> 본당 대예배실
-            </p>
-            <p>
-              <strong className="text-primary">강사:</strong> 김은혜 목사 (서울중앙교회)
-            </p>
-          </div>
+        <div className="p-6 md:p-8">
+          {/* Title */}
+          <h2 className="text-2xl md:text-3xl font-bold text-primary mb-6 pr-8">
+            {activePopup.title}
+          </h2>
 
-          <div className="mt-6 p-4 bg-beige rounded-md">
-            <p className="text-sm text-gray-700">
-              모든 성도님들의 많은 참여 부탁드립니다.
-              <br />
-              새해의 영적 각성과 부흥의 시간이 되시기를 기도합니다.
-            </p>
-          </div>
+          {/* Content (HTML Support) */}
+          <div
+            className="popup-content mb-6"
+            dangerouslySetInnerHTML={{ __html: activePopup.content }}
+          />
 
-          <button
-            onClick={handleClose}
-            className="w-full mt-6 btn-primary"
-          >
-            확인
-          </button>
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            {activePopup.linkUrl && activePopup.linkText && (
+              <Link
+                href={activePopup.linkUrl}
+                onClick={handleClose}
+                className="flex-1 btn-primary text-center"
+              >
+                {activePopup.linkText}
+              </Link>
+            )}
+            <button
+              onClick={handleClose}
+              className={`flex-1 px-6 py-3 rounded-md border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors ${
+                !activePopup.linkUrl ? 'btn-primary' : ''
+              }`}
+            >
+              닫기
+            </button>
+          </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-6 pb-4">
-          <label className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
+        {/* Footer - Don't Show Today */}
+        <div className="px-6 md:px-8 pb-6">
+          <label className="flex items-center space-x-3 cursor-pointer group">
             <input
               type="checkbox"
               checked={dontShowToday}
               onChange={(e) => setDontShowToday(e.target.checked)}
-              className="rounded border-gray-300 text-primary focus:ring-primary"
+              className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-2"
             />
-            <span>오늘 하루 보지 않기</span>
+            <span className="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">
+              오늘 하루 보지 않기
+            </span>
           </label>
         </div>
       </div>
+
+      <style jsx global>{`
+        .popup-content p {
+          line-height: 1.75;
+        }
+        .popup-content strong {
+          font-weight: 600;
+        }
+      `}</style>
     </div>
   )
 }
