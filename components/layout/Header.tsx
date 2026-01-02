@@ -8,9 +8,12 @@ const navigation = [
   { name: '홈', href: '/' },
   { name: '교회 소개', href: '/about' },
   { name: '교회 사역', href: '/ministry' },
-  { name: '활동 사진', href: '/gallery' },
+  { name: '실시간 예배', href: '/live' },
   { name: '설교', href: '/sermon' },
+  { name: '활동 사진', href: '/gallery' },
   { name: '교회 소식', href: '/news' },
+  { name: '기도 요청', href: '/prayer' },
+  { name: '온라인 등록', href: '/register' },
   { name: '오시는 길', href: '/contact' },
 ]
 
