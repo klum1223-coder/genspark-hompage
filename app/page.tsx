@@ -1,42 +1,42 @@
 import Link from 'next/link'
 import Hero from '@/components/shared/Hero'
 import PopupModal from '@/components/ui/PopupModal'
-import { sanityFetch } from '@/lib/sanity/client'
-import { RECENT_SERMONS_QUERY, RECENT_NEWS_QUERY, RECENT_ALBUMS_QUERY } from '@/lib/sanity/queries'
-import { SanitySermon, SanityNews, SanityAlbum } from '@/types/sanity'
+// import { sanityFetch } from '@/lib/sanity/client'
+// import { RECENT_SERMONS_QUERY, RECENT_NEWS_QUERY, RECENT_ALBUMS_QUERY } from '@/lib/sanity/queries'
+// import { SanitySermon, SanityNews, SanityAlbum } from '@/types/sanity'
 
 // ISR: 매 60초마다 재검증
-export const revalidate = 60
+// export const revalidate = 60
 
-export default async function Home() {
-  // Sanity에서 데이터 가져오기 (에러 처리 포함)
-  let recentSermons: SanitySermon[] = []
-  let recentNews: SanityNews[] = []
-  let recentAlbums: SanityAlbum[] = []
+export default function Home() {
+  // Sanity 데이터 페칭 임시 비활성화 (메모리 이슈로 인해)
+  const recentSermons: any[] = []
+  const recentNews: any[] = []
+  const recentAlbums: any[] = []
 
-  try {
-    recentSermons = await sanityFetch<SanitySermon[]>({
-      query: RECENT_SERMONS_QUERY,
-    })
-  } catch (error) {
-    console.error('최근 설교 데이터 가져오기 실패:', error)
-  }
+  // try {
+  //   recentSermons = await sanityFetch<SanitySermon[]>({
+  //     query: RECENT_SERMONS_QUERY,
+  //   })
+  // } catch (error) {
+  //   console.error('최근 설교 데이터 가져오기 실패:', error)
+  // }
 
-  try {
-    recentNews = await sanityFetch<SanityNews[]>({
-      query: RECENT_NEWS_QUERY,
-    })
-  } catch (error) {
-    console.error('최근 소식 데이터 가져오기 실패:', error)
-  }
+  // try {
+  //   recentNews = await sanityFetch<SanityNews[]>({
+  //     query: RECENT_NEWS_QUERY,
+  //   })
+  // } catch (error) {
+  //   console.error('최근 소식 데이터 가져오기 실패:', error)
+  // }
 
-  try {
-    recentAlbums = await sanityFetch<SanityAlbum[]>({
-      query: RECENT_ALBUMS_QUERY,
-    })
-  } catch (error) {
-    console.error('최근 앨범 데이터 가져오기 실패:', error)
-  }
+  // try {
+  //   recentAlbums = await sanityFetch<SanityAlbum[]>({
+  //     query: RECENT_ALBUMS_QUERY,
+  //   })
+  // } catch (error) {
+  //   console.error('최근 앨범 데이터 가져오기 실패:', error)
+  // }
 
   // 임시 사역 데이터 (나중에 CMS로 이관 가능)
   const ministries = [
