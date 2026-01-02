@@ -63,9 +63,26 @@ export interface SanityAlbum {
   description?: string
   coverImageUrl: string
   imageCount: number
-  year?: number
+  year?: string
   images?: {
     url: string
     caption?: string
+  }[]
+}
+
+// Gallery 타입 (기존 gallery 스키마용)
+export interface SanityGallery {
+  _id: string
+  title: string
+  date: string
+  category: '예배' | '행사' | '선교' | '교육' | '친교'
+  description?: string
+  coverImageUrl: string
+  imageCount: number
+  year?: string
+  images?: {
+    url: string
+    caption?: string
+    alt?: string
   }[]
 }

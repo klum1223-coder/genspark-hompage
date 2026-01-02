@@ -17,26 +17,13 @@ export default defineType({
       type: 'string',
       options: {
         list: [
-          { title: '예배', value: '예배' },
-          { title: '교육', value: '교육' },
-          { title: '선교', value: '선교' },
-          { title: '친교', value: '친교' },
-          { title: '기타', value: '기타' },
+          { title: '예배', value: 'worship' },
+          { title: '교육', value: 'education' },
+          { title: '선교', value: 'mission' },
+          { title: '친교', value: 'fellowship' },
         ],
       },
       validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'description',
-      title: '간단한 소개',
-      type: 'string',
-      validation: (Rule) => Rule.required().max(100),
-    }),
-    defineField({
-      name: 'details',
-      title: '상세 설명',
-      type: 'text',
-      rows: 4,
     }),
     defineField({
       name: 'image',
@@ -45,6 +32,36 @@ export default defineType({
       options: {
         hotspot: true,
       },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'description',
+      title: '간단한 소개',
+      type: 'text',
+      rows: 3,
+      validation: (Rule) => Rule.required().max(200),
+    }),
+    defineField({
+      name: 'detailContent',
+      title: '상세 내용',
+      type: 'array',
+      of: [
+        {
+          type: 'block',
+          styles: [
+            { title: 'Normal', value: 'normal' },
+            { title: 'H2', value: 'h2' },
+            { title: 'H3', value: 'h3' },
+            { title: 'Quote', value: 'blockquote' },
+          ],
+          marks: {
+            decorators: [
+              { title: 'Strong', value: 'strong' },
+              { title: 'Emphasis', value: 'em' },
+            ],
+          },
+        },
+      ],
     }),
     defineField({
       name: 'meetingTime',
@@ -53,7 +70,7 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'meetingPlace',
+      name: 'location',
       title: '모임 장소',
       type: 'string',
       validation: (Rule) => Rule.required(),
@@ -68,6 +85,7 @@ export default defineType({
       name: 'contact',
       title: '연락처',
       type: 'string',
+      placeholder: '010-1234-5678',
     }),
     defineField({
       name: 'order',
@@ -93,10 +111,16 @@ export default defineType({
     prepare(selection) {
       const { title, category, leader, isActive, media } = selection
       const status = isActive ? '🟢' : '🔴'
+      const categoryMap: Record<string, string> = {
+        worship: '예배',
+        education: '교육',
+        mission: '선교',
+        fellowship: '친교',
+      }
       
       return {
         title: `${status} ${title}`,
-        subtitle: `${category} | ${leader}`,
+        subtitle: `${categoryMap[category] || category} | ${leader}`,
         media,
       }
     },

@@ -1,56 +1,49 @@
 import Link from 'next/link'
 import Hero from '@/components/shared/Hero'
 import PopupModal from '@/components/ui/PopupModal'
+import { sanityFetch } from '@/lib/sanity/client'
+import { RECENT_SERMONS_QUERY, RECENT_NEWS_QUERY, RECENT_ALBUMS_QUERY } from '@/lib/sanity/queries'
+import { SanitySermon, SanityNews, SanityAlbum } from '@/types/sanity'
 
-export default function Home() {
-  // 임시 데이터 - 나중에 CMS에서 가져올 데이터
-  const recentSermons = [
-    {
-      id: 1,
-      title: '새해, 새로운 시작',
-      pastor: '김은혜 목사',
-      date: '2024.01.07',
-      verse: '이사야 43:18-19',
-      thumbnail: '/images/sermon-1.jpg',
-    },
-    {
-      id: 2,
-      title: '하나님의 사랑',
-      pastor: '김은혜 목사',
-      date: '2023.12.31',
-      verse: '요한복음 3:16',
-      thumbnail: '/images/sermon-2.jpg',
-    },
-    {
-      id: 3,
-      title: '믿음으로 사는 삶',
-      pastor: '김은혜 목사',
-      date: '2023.12.24',
-      verse: '히브리서 11:1-6',
-      thumbnail: '/images/sermon-3.jpg',
-    },
-  ]
+// ISR: 매 60초마다 재검증
+export const revalidate = 60
 
+export default async function Home() {
+  // Sanity에서 데이터 가져오기 (에러 처리 포함)
+  let recentSermons: SanitySermon[] = []
+  let recentNews: SanityNews[] = []
+  let recentAlbums: SanityAlbum[] = []
+
+  try {
+    recentSermons = await sanityFetch<SanitySermon[]>({
+      query: RECENT_SERMONS_QUERY,
+    })
+  } catch (error) {
+    console.error('최근 설교 데이터 가져오기 실패:', error)
+  }
+
+  try {
+    recentNews = await sanityFetch<SanityNews[]>({
+      query: RECENT_NEWS_QUERY,
+    })
+  } catch (error) {
+    console.error('최근 소식 데이터 가져오기 실패:', error)
+  }
+
+  try {
+    recentAlbums = await sanityFetch<SanityAlbum[]>({
+      query: RECENT_ALBUMS_QUERY,
+    })
+  } catch (error) {
+    console.error('최근 앨범 데이터 가져오기 실패:', error)
+  }
+
+  // 임시 사역 데이터 (나중에 CMS로 이관 가능)
   const ministries = [
     { id: 1, title: '주일학교', icon: '👶', description: '영유아부터 고등부까지', link: '/ministry' },
     { id: 2, title: '청년부', icon: '🙋', description: '대학생과 청년들의 공동체', link: '/ministry' },
     { id: 3, title: '찬양 사역', icon: '🎵', description: '하나님을 찬양하는 음악 사역', link: '/ministry' },
     { id: 4, title: '선교 사역', icon: '🌍', description: '국내외 선교와 지역 봉사', link: '/ministry' },
-  ]
-
-  const recentPhotos = [
-    { id: 1, title: '2024 신년 부흥회', date: '2024.01.15' },
-    { id: 2, title: '어린이 여름성경학교', date: '2023.08.10' },
-    { id: 3, title: '가을 수련회', date: '2023.10.20' },
-    { id: 4, title: '성탄절 축하 행사', date: '2023.12.24' },
-    { id: 5, title: '청년부 MT', date: '2023.11.05' },
-    { id: 6, title: '지역 봉사 활동', date: '2023.09.15' },
-  ]
-
-  const announcements = [
-    { id: 1, title: '2024년 신년 부흥회 안내', date: '2024.01.02', category: '공지' },
-    { id: 2, title: '겨울 성경학교 등록 안내', date: '2023.12.28', category: '행사' },
-    { id: 3, title: '주차장 이용 안내', date: '2023.12.20', category: '공지' },
   ]
 
   return (
@@ -128,28 +121,39 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {recentSermons.map((sermon) => (
-              <article key={sermon.id} className="card overflow-hidden group cursor-pointer">
-                <div className="relative h-48 bg-gradient-to-br from-primary to-primary-light overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
-                    <div className="text-center">
-                      <div className="text-5xl mb-2">🎤</div>
-                      <div className="text-sm font-medium">설교</div>
+          {recentSermons.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {recentSermons.map((sermon) => (
+                <Link href={`/sermon/${sermon._id}`} key={sermon._id}>
+                  <article className="card overflow-hidden group cursor-pointer h-full">
+                    <div className="relative h-48 bg-gradient-to-br from-primary to-primary-light overflow-hidden">
+                      <div className="absolute inset-0 flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
+                        <div className="text-center">
+                          <div className="text-5xl mb-2">🎤</div>
+                          <div className="text-sm font-medium">설교</div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <span className="text-xs text-gray-500">{sermon.date}</span>
-                  <h3 className="text-lg font-bold text-primary mt-2 mb-2 group-hover:text-primary-light transition-colors">
-                    {sermon.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-3">본문: {sermon.verse}</p>
-                  <p className="text-sm text-gray-500">{sermon.pastor}</p>
-                </div>
-              </article>
-            ))}
-          </div>
+                    <div className="p-6">
+                      <span className="text-xs text-gray-500">
+                        {new Date(sermon.date).toLocaleDateString('ko-KR')}
+                      </span>
+                      <h3 className="text-lg font-bold text-primary mt-2 mb-2 group-hover:text-primary-light transition-colors line-clamp-2">
+                        {sermon.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-3">본문: {sermon.verse}</p>
+                      <p className="text-sm text-gray-500">{sermon.pastor}</p>
+                    </div>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <p className="text-lg">설교 데이터가 없습니다.</p>
+              <p className="text-sm mt-2">Sanity Studio에서 설교를 추가해주세요.</p>
+            </div>
+          )}
 
           <div className="text-center mt-8 sm:hidden">
             <Link href="/sermon" className="btn-primary">
@@ -229,26 +233,34 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {recentPhotos.map((photo) => (
-              <div 
-                key={photo.id}
-                className="card overflow-hidden group cursor-pointer aspect-square"
-              >
-                <div className="relative h-full bg-gradient-to-br from-beige to-beige-dark">
-                  <div className="absolute inset-0 flex items-center justify-center text-primary/20 text-5xl group-hover:scale-110 transition-transform duration-300">
-                    📷
-                  </div>
-                  <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/80 transition-colors duration-300 flex items-center justify-center">
-                    <div className="text-white text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4">
-                      <p className="text-sm font-medium">{photo.title}</p>
-                      <p className="text-xs mt-1">{photo.date}</p>
+          {recentAlbums.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {recentAlbums.map((album) => (
+                <Link href={`/gallery`} key={album._id}>
+                  <div className="card overflow-hidden group cursor-pointer aspect-square">
+                    <div className="relative h-full bg-gradient-to-br from-beige to-beige-dark">
+                      <div className="absolute inset-0 flex items-center justify-center text-primary/20 text-5xl group-hover:scale-110 transition-transform duration-300">
+                        📷
+                      </div>
+                      <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/80 transition-colors duration-300 flex items-center justify-center">
+                        <div className="text-white text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4">
+                          <p className="text-sm font-medium line-clamp-2">{album.title}</p>
+                          <p className="text-xs mt-1">
+                            {new Date(album.date).toLocaleDateString('ko-KR')}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <p className="text-lg">앨범 데이터가 없습니다.</p>
+              <p className="text-sm mt-2">Sanity Studio에서 앨범을 추가해주세요.</p>
+            </div>
+          )}
 
           <div className="text-center mt-8">
             <Link href="/gallery" className="btn-primary">
@@ -279,36 +291,49 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="space-y-4">
-            {announcements.map((announcement) => (
-              <div 
-                key={announcement.id}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-6 hover:bg-white/20 transition-colors cursor-pointer group"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">
-                        {announcement.category}
-                      </span>
-                      <span className="text-sm text-gray-200">{announcement.date}</span>
+          {recentNews.length > 0 ? (
+            <div className="space-y-4">
+              {recentNews.map((news) => (
+                <Link href={`/news/${news._id}`} key={news._id}>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 hover:bg-white/20 transition-colors cursor-pointer group">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">
+                            {news.category}
+                          </span>
+                          <span className="text-sm text-gray-200">
+                            {new Date(news.date).toLocaleDateString('ko-KR')}
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-bold group-hover:text-beige transition-colors line-clamp-2">
+                          {news.title}
+                        </h3>
+                        {news.excerpt && (
+                          <p className="text-sm text-gray-200 mt-2 line-clamp-2">
+                            {news.excerpt}
+                          </p>
+                        )}
+                      </div>
+                      <svg 
+                        className="w-6 h-6 text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all flex-shrink-0 ml-4" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </div>
-                    <h3 className="text-lg font-bold group-hover:text-beige transition-colors">
-                      {announcement.title}
-                    </h3>
                   </div>
-                  <svg 
-                    className="w-6 h-6 text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all flex-shrink-0 ml-4" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </div>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-white/70">
+              <p className="text-lg">공지사항이 없습니다.</p>
+              <p className="text-sm mt-2">Sanity Studio에서 공지사항을 추가해주세요.</p>
+            </div>
+          )}
 
           <div className="text-center mt-8">
             <Link href="/news" className="inline-block px-8 py-3 bg-white text-primary rounded-md hover:bg-beige transition-colors font-medium">
