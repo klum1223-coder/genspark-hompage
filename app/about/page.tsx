@@ -114,14 +114,13 @@ export default function AboutPage() {
                 </div>
                 <div className="flex-1 text-center md:text-left">
                   <h3 className="text-2xl font-bold text-primary mb-2">
-                    김은혜 목사
+                    김선우 목사
                   </h3>
                   <p className="text-gray-600 mb-4">담임목사 / Senior Pastor</p>
                   
                   <div className="space-y-2 text-gray-700">
-                    <p>장로회신학대학교 신학과 졸업 (B.A.)</p>
-                    <p>장로회신학대학원 목회학 석사 (M.Div.)</p>
-                    <p>풀러신학교 선교학 박사 (D.Min.)</p>
+                    <p>총신대학교 신학과 졸업 (B.A.)</p>
+                    <p>총신대학교 신학대학원 목회학 석사 (M.Div.)</p>
                   </div>
 
                   <div className="mt-6 p-4 bg-beige rounded-md">

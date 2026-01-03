@@ -1,7 +1,41 @@
+'use client'
+
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
+  const [churchInfo, setChurchInfo] = useState({
+    name: '주성성결교회',
+    phone: '02-1234-5678',
+    email: 'info@joosungchurch.com',
+    address: '서울시 강남구 테헤란로 123',
+  })
+  const [worshipTimes, setWorshipTimes] = useState({
+    sunday: [
+      { name: '1부 예배', time: '오전 09:00' },
+      { name: '2부 예배', time: '오전 11:00' },
+      { name: '찬양예배', time: '오후 14:00' },
+    ],
+    weekday: [
+      { name: '수요예배', time: '오후 07:30' },
+      { name: '금요기도', time: '오후 07:30' },
+    ],
+  })
+
+  useEffect(() => {
+    // 로컬스토리지에서 교회 정보 불러오기
+    const savedInfo = localStorage.getItem('church_info')
+    if (savedInfo) {
+      setChurchInfo(JSON.parse(savedInfo))
+    }
+
+    // 로컬스토리지에서 예배 시간 불러오기
+    const savedTimes = localStorage.getItem('worship_times')
+    if (savedTimes) {
+      setWorshipTimes(JSON.parse(savedTimes))
+    }
+  }, [])
 
   return (
     <footer className="bg-primary text-white">
@@ -12,7 +46,7 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4 flex items-center space-x-2">
               <span>✝️</span>
-              <span>주성성결교회</span>
+              <span>{churchInfo.name}</span>
             </h3>
             <p className="text-sm text-gray-300 leading-relaxed">
               하나님의 사랑과 은혜를<br />
@@ -34,7 +68,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link 
-                  href="/ministry" 
+                  href="/gallery" 
                   className="text-sm text-gray-300 hover:text-white transition-colors"
                 >
                   교회 사역
@@ -56,6 +90,14 @@ export default function Footer() {
                   교회 소식
                 </Link>
               </li>
+              <li>
+                <Link 
+                  href="/prayer" 
+                  className="text-sm text-gray-300 hover:text-white transition-colors"
+                >
+                  기도 요청
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -63,11 +105,12 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4">예배 시간</h3>
             <ul className="space-y-2 text-sm text-gray-300">
-              <li>주일 1부 예배: 오전 9:00</li>
-              <li>주일 2부 예배: 오전 11:00</li>
-              <li>주일 찬양예배: 오후 2:00</li>
-              <li>수요 예배: 오후 7:30</li>
-              <li>금요 기도회: 오후 7:30</li>
+              {worshipTimes.sunday.map((item, idx) => (
+                <li key={idx}>{item.name}: {item.time}</li>
+              ))}
+              {worshipTimes.weekday.map((item, idx) => (
+                <li key={idx}>{item.name}: {item.time}</li>
+              ))}
             </ul>
           </div>
 
@@ -77,19 +120,15 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-gray-300">
               <li className="flex items-start space-x-2">
                 <span>📍</span>
-                <span>서울시 강남구 테헤란로 123</span>
+                <span>{churchInfo.address}</span>
               </li>
               <li className="flex items-start space-x-2">
                 <span>📞</span>
-                <span>02-1234-5678</span>
-              </li>
-              <li className="flex items-start space-x-2">
-                <span>📠</span>
-                <span>02-1234-5679</span>
+                <span>{churchInfo.phone}</span>
               </li>
               <li className="flex items-start space-x-2">
                 <span>✉️</span>
-                <span>info@joosungchurch.com</span>
+                <span>{churchInfo.email}</span>
               </li>
             </ul>
           </div>
@@ -101,7 +140,7 @@ export default function Footer() {
         <div className="container-custom py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-sm text-gray-300">
-              © {currentYear} 주성성결교회. All rights reserved.
+              © {currentYear} {churchInfo.name}. All rights reserved.
             </p>
             
             {/* Social Links */}
