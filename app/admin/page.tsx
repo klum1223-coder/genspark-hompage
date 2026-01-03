@@ -163,22 +163,123 @@ export default function AdminPage() {
 
 // 교회 정보 탭
 function ChurchInfoTab() {
+  const [isEditing, setIsEditing] = useState(false)
+  const [churchInfo, setChurchInfo] = useState({
+    name: '주성성결교회',
+    englishName: 'Joosung Holiness Church',
+    phone: '02-1234-5678',
+    email: 'info@joosungchurch.com',
+    address: '서울시 강남구 테헤란로 123',
+    tagline: '하나님의 사랑으로 함께하는 공동체',
+  })
+  const [saveMessage, setSaveMessage] = useState('')
+
+  // 로컬스토리지에서 정보 불러오기
+  useEffect(() => {
+    const saved = localStorage.getItem('church_info')
+    if (saved) {
+      setChurchInfo(JSON.parse(saved))
+    }
+  }, [])
+
+  const handleSave = () => {
+    localStorage.setItem('church_info', JSON.stringify(churchInfo))
+    setIsEditing(false)
+    setSaveMessage('✅ 저장되었습니다!')
+    setTimeout(() => setSaveMessage(''), 3000)
+  }
+
+  const handleCancel = () => {
+    const saved = localStorage.getItem('church_info')
+    if (saved) {
+      setChurchInfo(JSON.parse(saved))
+    }
+    setIsEditing(false)
+  }
+
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-bold text-primary mb-4">교회 기본 정보</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-primary">교회 기본 정보</h2>
+          {!isEditing ? (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+            >
+              수정하기
+            </button>
+          ) : (
+            <div className="flex space-x-2">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                저장
+              </button>
+            </div>
+          )}
+        </div>
+
+        {saveMessage && (
+          <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm">
+            {saveMessage}
+          </div>
+        )}
+
         <div className="space-y-4">
-          <InfoCard title="교회명" content="주성성결교회" />
-          <InfoCard title="영문명" content="Joosung Holiness Church" />
-          <InfoCard title="대표 전화" content="02-1234-5678" />
-          <InfoCard title="이메일" content="info@joosungchurch.com" />
-          <InfoCard title="주소" content="서울시 강남구 테헤란로 123" />
+          <EditableField
+            label="교회명"
+            value={churchInfo.name}
+            isEditing={isEditing}
+            onChange={(value) => setChurchInfo({ ...churchInfo, name: value })}
+          />
+          <EditableField
+            label="영문명"
+            value={churchInfo.englishName}
+            isEditing={isEditing}
+            onChange={(value) => setChurchInfo({ ...churchInfo, englishName: value })}
+          />
+          <EditableField
+            label="슬로건"
+            value={churchInfo.tagline}
+            isEditing={isEditing}
+            onChange={(value) => setChurchInfo({ ...churchInfo, tagline: value })}
+          />
+          <EditableField
+            label="대표 전화"
+            value={churchInfo.phone}
+            isEditing={isEditing}
+            onChange={(value) => setChurchInfo({ ...churchInfo, phone: value })}
+          />
+          <EditableField
+            label="이메일"
+            value={churchInfo.email}
+            isEditing={isEditing}
+            onChange={(value) => setChurchInfo({ ...churchInfo, email: value })}
+          />
+          <EditableField
+            label="주소"
+            value={churchInfo.address}
+            isEditing={isEditing}
+            onChange={(value) => setChurchInfo({ ...churchInfo, address: value })}
+          />
         </div>
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-          <p className="text-sm text-blue-900">
-            ℹ️ 교회 정보를 수정하려면 <code className="bg-white px-2 py-1 rounded">/lib/church-info.ts</code> 파일을 편집하세요.
-          </p>
-        </div>
+
+        {!isEditing && (
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm text-blue-900">
+              ℹ️ 수정한 정보는 브라우저에 저장됩니다. 실제 파일을 수정하려면{' '}
+              <code className="bg-white px-2 py-1 rounded">/lib/church-info.ts</code> 파일을 편집하세요.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-6">
@@ -215,27 +316,184 @@ function ChurchInfoTab() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-bold text-primary mb-4">예배 시간</h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="p-4 border rounded-lg">
-            <h3 className="font-bold text-lg mb-3">주일 예배</h3>
-            <div className="space-y-2">
-              <p className="text-sm">1부 예배: <span className="font-medium">오전 09:00</span></p>
-              <p className="text-sm">2부 예배: <span className="font-medium">오전 11:00</span></p>
-              <p className="text-sm">찬양예배: <span className="font-medium">오후 14:00</span></p>
-            </div>
+      <WorshipTimesSection />
+    </div>
+  )
+}
+
+// 예배 시간 섹션
+function WorshipTimesSection() {
+  const [isEditing, setIsEditing] = useState(false)
+  const [worshipTimes, setWorshipTimes] = useState({
+    sunday: [
+      { name: '1부 예배', time: '오전 09:00' },
+      { name: '2부 예배', time: '오전 11:00' },
+      { name: '찬양예배', time: '오후 14:00' },
+    ],
+    weekday: [
+      { name: '수요예배', time: '오후 07:30' },
+      { name: '새벽기도', time: '오전 05:30' },
+      { name: '금요기도', time: '오후 07:30' },
+    ],
+  })
+  const [saveMessage, setSaveMessage] = useState('')
+
+  useEffect(() => {
+    const saved = localStorage.getItem('worship_times')
+    if (saved) {
+      setWorshipTimes(JSON.parse(saved))
+    }
+  }, [])
+
+  const handleSave = () => {
+    localStorage.setItem('worship_times', JSON.stringify(worshipTimes))
+    setIsEditing(false)
+    setSaveMessage('✅ 저장되었습니다!')
+    setTimeout(() => setSaveMessage(''), 3000)
+  }
+
+  const handleCancel = () => {
+    const saved = localStorage.getItem('worship_times')
+    if (saved) {
+      setWorshipTimes(JSON.parse(saved))
+    }
+    setIsEditing(false)
+  }
+
+  const updateTime = (type: 'sunday' | 'weekday', index: number, field: 'name' | 'time', value: string) => {
+    const newTimes = { ...worshipTimes }
+    newTimes[type][index][field] = value
+    setWorshipTimes(newTimes)
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-primary">예배 시간</h2>
+        {!isEditing ? (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+          >
+            수정하기
+          </button>
+        ) : (
+          <div className="flex space-x-2">
+            <button
+              onClick={handleCancel}
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              취소
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              저장
+            </button>
           </div>
-          <div className="p-4 border rounded-lg">
-            <h3 className="font-bold text-lg mb-3">평일 예배</h3>
-            <div className="space-y-2">
-              <p className="text-sm">수요예배: <span className="font-medium">오후 07:30</span></p>
-              <p className="text-sm">새벽기도: <span className="font-medium">오전 05:30</span></p>
-              <p className="text-sm">금요기도: <span className="font-medium">오후 07:30</span></p>
-            </div>
+        )}
+      </div>
+
+      {saveMessage && (
+        <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm">
+          {saveMessage}
+        </div>
+      )}
+
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="p-4 border rounded-lg">
+          <h3 className="font-bold text-lg mb-3">주일 예배</h3>
+          <div className="space-y-3">
+            {worshipTimes.sunday.map((item, index) => (
+              <div key={index}>
+                {isEditing ? (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => updateTime('sunday', index, 'name', e.target.value)}
+                      className="flex-1 px-3 py-2 border rounded text-sm"
+                      placeholder="예배명"
+                    />
+                    <input
+                      type="text"
+                      value={item.time}
+                      onChange={(e) => updateTime('sunday', index, 'time', e.target.value)}
+                      className="flex-1 px-3 py-2 border rounded text-sm"
+                      placeholder="시간"
+                    />
+                  </div>
+                ) : (
+                  <p className="text-sm">
+                    {item.name}: <span className="font-medium">{item.time}</span>
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="p-4 border rounded-lg">
+          <h3 className="font-bold text-lg mb-3">평일 예배</h3>
+          <div className="space-y-3">
+            {worshipTimes.weekday.map((item, index) => (
+              <div key={index}>
+                {isEditing ? (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => updateTime('weekday', index, 'name', e.target.value)}
+                      className="flex-1 px-3 py-2 border rounded text-sm"
+                      placeholder="예배명"
+                    />
+                    <input
+                      type="text"
+                      value={item.time}
+                      onChange={(e) => updateTime('weekday', index, 'time', e.target.value)}
+                      className="flex-1 px-3 py-2 border rounded text-sm"
+                      placeholder="시간"
+                    />
+                  </div>
+                ) : (
+                  <p className="text-sm">
+                    {item.name}: <span className="font-medium">{item.time}</span>
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// 편집 가능한 필드 컴포넌트
+function EditableField({
+  label,
+  value,
+  isEditing,
+  onChange,
+}: {
+  label: string
+  value: string
+  isEditing: boolean
+  onChange: (value: string) => void
+}) {
+  return (
+    <div className="p-4 border rounded-lg">
+      <p className="text-sm text-gray-600 mb-2">{label}</p>
+      {isEditing ? (
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+        />
+      ) : (
+        <p className="font-medium text-gray-900">{value}</p>
+      )}
     </div>
   )
 }
@@ -389,16 +647,6 @@ function SettingsTab() {
           </p>
         </div>
       </div>
-    </div>
-  )
-}
-
-// 정보 카드 컴포넌트
-function InfoCard({ title, content }: { title: string; content: string }) {
-  return (
-    <div className="p-4 border rounded-lg">
-      <p className="text-sm text-gray-600 mb-1">{title}</p>
-      <p className="font-medium text-gray-900">{content}</p>
     </div>
   )
 }
