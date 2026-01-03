@@ -1,19 +1,35 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
+interface HeroContent {
+  title: string
+  subtitle: string
+  description: string
+}
+
 export default function Hero() {
+  const [heroContent, setHeroContent] = useState<HeroContent>({
+    title: '하나님의 사랑으로\n함께하는 공동체',
+    subtitle: '예수 그리스도의 복음으로 세워진',
+    description: '생명과 소망이 넘치는 교회'
+  })
+
+  useEffect(() => {
+    const savedHero = localStorage.getItem('hero_content')
+    if (savedHero) {
+      setHeroContent(JSON.parse(savedHero))
+    }
+  }, [])
+
+  // 제목을 \n 기준으로 분리
+  const titleParts = heroContent.title.split('\\n')
+
   return (
     <section className="relative h-screen min-h-[600px] flex items-center justify-center bg-gradient-to-br from-primary via-primary to-primary-light overflow-hidden">
       {/* Background Overlay */}
       <div className="absolute inset-0 bg-black/40"></div>
-      
-      {/* Optional: Background Image */}
-      {/* <Image 
-        src="/images/hero-bg.jpg" 
-        alt="Church Background"
-        fill
-        className="object-cover"
-        priority
-      /> */}
 
       {/* Decorative Elements */}
       <div className="absolute inset-0 opacity-10">
@@ -26,16 +42,19 @@ export default function Hero() {
         <div className="max-w-5xl mx-auto">
           {/* Main Heading */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 md:mb-8 leading-tight animate-fade-in">
-            하나님의 사랑으로
-            <br />
-            <span className="text-beige inline-block mt-2">함께하는 공동체</span>
+            {titleParts.map((part, index) => (
+              <span key={index}>
+                {part}
+                {index < titleParts.length - 1 && <br />}
+              </span>
+            ))}
           </h1>
           
           {/* Sub Message */}
           <p className="text-lg sm:text-xl md:text-2xl mb-8 md:mb-12 text-gray-100 leading-relaxed max-w-3xl mx-auto animate-fade-in-delay">
-            예수 그리스도의 복음으로 세워진
+            {heroContent.subtitle}
             <br className="hidden sm:block" />
-            생명과 소망이 넘치는 교회
+            {heroContent.description}
           </p>
 
           {/* CTA Buttons */}

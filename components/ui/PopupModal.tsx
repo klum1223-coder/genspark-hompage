@@ -2,34 +2,60 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { activePopup, shouldShowPopup, hidePopupForToday, cleanupOldPopupData } from '@/lib/popup-data'
+
+interface PopupData {
+  enabled: boolean
+  title: string
+  content: string
+  linkText: string
+  linkUrl: string
+}
 
 export default function PopupModal() {
   const [isOpen, setIsOpen] = useState(false)
   const [dontShowToday, setDontShowToday] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [popupData, setPopupData] = useState<PopupData>({
+    enabled: true,
+    title: '주성성결교회에 오신 것을 환영합니다',
+    content: '하나님의 사랑으로 함께하는 공동체\n주성성결교회에 방문해 주셔서 감사합니다.',
+    linkText: '교회 소개 보기',
+    linkUrl: '/about'
+  })
 
   useEffect(() => {
-    // 오래된 팝업 데이터 정리
-    cleanupOldPopupData()
+    // 로컬스토리지에서 팝업 데이터 로드
+    const savedPopup = localStorage.getItem('popup_data')
+    if (savedPopup) {
+      const data = JSON.parse(savedPopup)
+      setPopupData(data)
 
-    // 팝업 활성화 상태 및 표시 여부 확인
-    if (activePopup.isActive && shouldShowPopup(activePopup.id)) {
-      // 페이지 로드 후 0.5초 뒤에 팝업 표시
-      const timer = setTimeout(() => {
-        setIsOpen(true)
-        setIsAnimating(true)
-      }, 500)
-      return () => clearTimeout(timer)
+      // 팝업이 활성화되어 있고, 오늘 하루 보지 않기가 설정되지 않았다면 표시
+      if (data.enabled) {
+        const hideUntil = localStorage.getItem('popup_hide_until')
+        const now = new Date().getTime()
+        
+        if (!hideUntil || now > parseInt(hideUntil)) {
+          // 페이지 로드 후 0.5초 뒤에 팝업 표시
+          const timer = setTimeout(() => {
+            setIsOpen(true)
+            setIsAnimating(true)
+          }, 500)
+          return () => clearTimeout(timer)
+        }
+      }
     }
   }, [])
 
   const handleClose = () => {
     if (dontShowToday) {
-      hidePopupForToday(activePopup.id)
+      // 오늘 자정까지 숨기기
+      const tomorrow = new Date()
+      tomorrow.setHours(24, 0, 0, 0)
+      localStorage.setItem('popup_hide_until', tomorrow.getTime().toString())
     }
     setIsAnimating(false)
-    setTimeout(() => setIsOpen(false), 300) // 애니메이션 후 닫기
+    setTimeout(() => setIsOpen(false), 300)
   }
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -38,7 +64,7 @@ export default function PopupModal() {
     }
   }
 
-  if (!isOpen) return null
+  if (!isOpen || !popupData.enabled) return null
 
   return (
     <div
@@ -75,50 +101,43 @@ export default function PopupModal() {
           </svg>
         </button>
 
-        {/* Image Section (Optional) */}
-        {activePopup.image && (
-          <div className="relative h-48 bg-gradient-to-br from-primary to-primary-light overflow-hidden">
-            {/* 실제 이미지가 있을 경우 */}
-            {/* <Image src={activePopup.image} alt={activePopup.title} fill className="object-cover" /> */}
-            
-            {/* 임시 플레이스홀더 */}
-            <div className="absolute inset-0 flex items-center justify-center text-white">
-              <div className="text-center">
-                <div className="text-6xl mb-3">✝️</div>
-                <p className="text-sm font-medium opacity-90">교회 이름</p>
-              </div>
+        {/* Image Section */}
+        <div className="relative h-48 bg-gradient-to-br from-primary to-primary-light overflow-hidden">
+          <div className="absolute inset-0 flex items-center justify-center text-white">
+            <div className="text-center">
+              <div className="text-6xl mb-3">✝️</div>
+              <p className="text-sm font-medium opacity-90">주성성결교회</p>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Content Section */}
         <div className="p-6 md:p-8">
           {/* Title */}
           <h2 className="text-2xl md:text-3xl font-bold text-primary mb-6 pr-8">
-            {activePopup.title}
+            {popupData.title}
           </h2>
 
-          {/* Content (HTML Support) */}
-          <div
-            className="popup-content mb-6"
-            dangerouslySetInnerHTML={{ __html: activePopup.content }}
-          />
+          {/* Content */}
+          <div className="popup-content mb-6 text-gray-700 whitespace-pre-line leading-relaxed">
+            {popupData.content}
+          </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3">
-            {activePopup.linkUrl && activePopup.linkText && (
+            {popupData.linkUrl && popupData.linkText && (
               <Link
-                href={activePopup.linkUrl}
+                href={popupData.linkUrl}
                 onClick={handleClose}
                 className="flex-1 btn-primary text-center"
               >
-                {activePopup.linkText}
+                {popupData.linkText}
               </Link>
             )}
             <button
               onClick={handleClose}
               className={`flex-1 px-6 py-3 rounded-md border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors ${
-                !activePopup.linkUrl ? 'btn-primary' : ''
+                !popupData.linkUrl ? 'btn-primary' : ''
               }`}
             >
               닫기
@@ -141,15 +160,6 @@ export default function PopupModal() {
           </label>
         </div>
       </div>
-
-      <style jsx global>{`
-        .popup-content p {
-          line-height: 1.75;
-        }
-        .popup-content strong {
-          font-weight: 600;
-        }
-      `}</style>
     </div>
   )
 }

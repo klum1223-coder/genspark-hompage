@@ -2,23 +2,143 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { newsStorage, prayerStorage, ministryStorage, galleryStorage, imageToBase64, type NewsItem, type MinistryItem } from '@/lib/content-storage'
+
+interface ChurchInfo {
+  name: string
+  englishName: string
+  phone: string
+  fax: string
+  email: string
+  address: string
+  addressDetail: string
+}
+
+interface PastorInfo {
+  name: string
+  education: string[]
+  message: string
+}
+
+interface WorshipTime {
+  name: string
+  time: string
+  description: string
+}
+
+interface PopupData {
+  enabled: boolean
+  title: string
+  content: string
+  linkText: string
+  linkUrl: string
+}
+
+interface HeroContent {
+  title: string
+  subtitle: string
+  description: string
+}
 
 export default function AdminPage() {
   const [password, setPassword] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [activeTab, setActiveTab] = useState('info')
+  const [activeTab, setActiveTab] = useState('church-info')
   const [message, setMessage] = useState('')
+  const [saveSuccess, setSaveSuccess] = useState(false)
 
-  // 간단한 비밀번호 인증
+  // 교회 기본 정보
+  const [churchInfo, setChurchInfo] = useState<ChurchInfo>({
+    name: '주성성결교회',
+    englishName: 'Joosung Holiness Church',
+    phone: '02-1234-5678',
+    fax: '02-1234-5679',
+    email: 'klum3@naver.com',
+    address: '서울시 강남구 테헤란로 123',
+    addressDetail: '주성빌딩 2층'
+  })
+
+  // 담임목사 정보
+  const [pastorInfo, setPastorInfo] = useState<PastorInfo>({
+    name: '김선우 목사',
+    education: [
+      '호서대학교 신학과 졸업 (B.A.)',
+      '서울신학대학교 대학원 목회학 석사 (M.Div.)'
+    ],
+    message: '하나님의 말씀으로 세워지고, 사랑으로 하나 되며, 복음으로 세상을 섬기는 교회를 꿈꿉니다.'
+  })
+
+  // 예배 시간
+  const [sundayWorship, setSundayWorship] = useState<WorshipTime[]>([
+    { name: '1부 예배', time: '오전 09:00', description: '장년 예배' },
+    { name: '2부 예배', time: '오전 11:00', description: '대예배' },
+    { name: '찬양예배', time: '오후 14:00', description: '청년 찬양 예배' }
+  ])
+
+  const [weekdayWorship, setWeekdayWorship] = useState<WorshipTime[]>([
+    { name: '수요 예배', time: '매주 수요일 오후 07:30', description: '말씀과 기도로 함께하는 시간' },
+    { name: '새벽 기도회', time: '매일 새벽 오전 05:30', description: '하루를 주님께 드리는 시간' },
+    { name: '금요 기도회', time: '매주 금요일 오후 07:30', description: '성령 충만의 시간' }
+  ])
+
+  // 팝업 배너
+  const [popupData, setPopupData] = useState<PopupData>({
+    enabled: true,
+    title: '2024 신년 부흥회',
+    content: '새해를 맞이하여 은혜로운 부흥회를 개최합니다.\n\n📅 일시: 2024년 1월 15일(월) ~ 17일(수)\n⏰ 시간: 매일 저녁 7시 30분\n📍 장소: 본 교회 대예배실',
+    linkText: '자세히 보기',
+    linkUrl: '/news'
+  })
+
+  // 히어로 섹션 (메인 배너)
+  const [heroContent, setHeroContent] = useState<HeroContent>({
+    title: '하나님의 사랑으로\n함께하는 공동체',
+    subtitle: '예수 그리스도의 복음으로 세워진',
+    description: '생명과 소망이 넘치는 교회'
+  })
+
   const ADMIN_PASSWORD = 'joosung2025'
 
   useEffect(() => {
     const auth = localStorage.getItem('admin_auth')
     if (auth === 'true') {
       setIsAuthenticated(true)
+      loadAllData()
     }
   }, [])
+
+  const loadAllData = () => {
+    // 교회 정보 로드
+    const savedChurchInfo = localStorage.getItem('church_info')
+    if (savedChurchInfo) {
+      setChurchInfo(JSON.parse(savedChurchInfo))
+    }
+
+    // 담임목사 정보 로드
+    const savedPastorInfo = localStorage.getItem('pastor_info')
+    if (savedPastorInfo) {
+      setPastorInfo(JSON.parse(savedPastorInfo))
+    }
+
+    // 예배 시간 로드
+    const savedWorshipTimes = localStorage.getItem('worship_times')
+    if (savedWorshipTimes) {
+      const times = JSON.parse(savedWorshipTimes)
+      if (times.sunday) setSundayWorship(times.sunday)
+      if (times.weekday) setWeekdayWorship(times.weekday)
+    }
+
+    // 팝업 데이터 로드
+    const savedPopup = localStorage.getItem('popup_data')
+    if (savedPopup) {
+      setPopupData(JSON.parse(savedPopup))
+    }
+
+    // 히어로 콘텐츠 로드
+    const savedHero = localStorage.getItem('hero_content')
+    if (savedHero) {
+      setHeroContent(JSON.parse(savedHero))
+    }
+  }
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,6 +146,7 @@ export default function AdminPage() {
       setIsAuthenticated(true)
       localStorage.setItem('admin_auth', 'true')
       setMessage('로그인 성공!')
+      loadAllData()
     } else {
       setMessage('비밀번호가 올바르지 않습니다.')
     }
@@ -35,6 +156,39 @@ export default function AdminPage() {
     setIsAuthenticated(false)
     localStorage.removeItem('admin_auth')
     setPassword('')
+  }
+
+  const showSaveMessage = () => {
+    setSaveSuccess(true)
+    setTimeout(() => setSaveSuccess(false), 3000)
+  }
+
+  const saveChurchInfo = () => {
+    localStorage.setItem('church_info', JSON.stringify(churchInfo))
+    showSaveMessage()
+  }
+
+  const savePastorInfo = () => {
+    localStorage.setItem('pastor_info', JSON.stringify(pastorInfo))
+    showSaveMessage()
+  }
+
+  const saveWorshipTimes = () => {
+    localStorage.setItem('worship_times', JSON.stringify({
+      sunday: sundayWorship,
+      weekday: weekdayWorship
+    }))
+    showSaveMessage()
+  }
+
+  const savePopupData = () => {
+    localStorage.setItem('popup_data', JSON.stringify(popupData))
+    showSaveMessage()
+  }
+
+  const saveHeroContent = () => {
+    localStorage.setItem('hero_content', JSON.stringify(heroContent))
+    showSaveMessage()
   }
 
   if (!isAuthenticated) {
@@ -84,12 +238,6 @@ export default function AdminPage() {
               ← 홈페이지로 돌아가기
             </Link>
           </div>
-          
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-600 text-center">
-              💡 기본 비밀번호: <code className="bg-white px-2 py-1 rounded">joosung2025</code>
-            </p>
-          </div>
         </div>
       </div>
     )
@@ -98,23 +246,28 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container-custom py-4">
-          <div className="flex items-center justify-between">
-            <div>
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
               <h1 className="text-2xl font-bold text-primary">관리자 페이지</h1>
-              <p className="text-sm text-gray-600">주성성결교회</p>
+              {saveSuccess && (
+                <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full animate-fade-in">
+                  ✓ 저장되었습니다!
+                </span>
+              )}
             </div>
             <div className="flex items-center space-x-4">
-              <Link 
-                href="/" 
-                className="px-4 py-2 text-primary hover:bg-gray-100 rounded-lg transition-colors"
+              <Link
+                href="/"
+                target="_blank"
+                className="text-sm text-gray-600 hover:text-primary"
               >
-                홈페이지 보기
+                🌐 사이트 보기
               </Link>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm"
               >
                 로그아웃
               </button>
@@ -124,24 +277,23 @@ export default function AdminPage() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b">
-        <div className="container-custom">
-          <div className="flex space-x-1 overflow-x-auto">
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex space-x-8 overflow-x-auto">
             {[
-              { id: 'info', label: '교회 정보' },
-              { id: 'news', label: '교회 소식' },
-              { id: 'ministry', label: '교회 사역' },
-              { id: 'prayer', label: '기도 요청' },
-              { id: 'gallery', label: '사진 관리' },
-              { id: 'settings', label: '설정' },
+              { id: 'church-info', label: '🏛️ 교회 정보' },
+              { id: 'pastor', label: '👨‍🏫 담임목사' },
+              { id: 'worship', label: '⛪ 예배 시간' },
+              { id: 'popup', label: '📢 팝업 배너' },
+              { id: 'hero', label: '🎨 메인 배너' }
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-3 font-medium transition-colors whitespace-nowrap ${
+                className={`py-4 px-2 border-b-2 font-medium text-sm whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'text-primary border-b-2 border-primary'
-                    : 'text-gray-600 hover:text-primary'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 {tab.label}
@@ -152,829 +304,454 @@ export default function AdminPage() {
       </div>
 
       {/* Content */}
-      <div className="container-custom py-8">
-        {activeTab === 'info' && <ChurchInfoTab />}
-        {activeTab === 'news' && <NewsManagementTab />}
-        {activeTab === 'ministry' && <MinistryManagementTab />}
-        {activeTab === 'prayer' && <PrayerManagementTab />}
-        {activeTab === 'gallery' && <GalleryManagementTab />}
-        {activeTab === 'settings' && <SettingsTab />}
-      </div>
-    </div>
-  )
-}
-
-// 교회 소식 관리 탭 (새로 작성)
-function NewsManagementTab() {
-  const [news, setNews] = useState<NewsItem[]>([])
-  const [showForm, setShowForm] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [formData, setFormData] = useState({
-    category: '공지' as '공지' | '행사' | '소식',
-    title: '',
-    content: '',
-    excerpt: '',
-    author: '',
-    image: '',
-  })
-
-  useEffect(() => {
-    setNews(newsStorage.getAll())
-  }, [])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (editingId) {
-      newsStorage.update(editingId, formData)
-    } else {
-      newsStorage.add(formData)
-    }
-    setNews(newsStorage.getAll())
-    resetForm()
-  }
-
-  const handleDelete = (id: string) => {
-    if (confirm('정말 삭제하시겠습니까?')) {
-      newsStorage.delete(id)
-      setNews(newsStorage.getAll())
-    }
-  }
-
-  const handleEdit = (item: NewsItem) => {
-    setFormData({
-      category: item.category,
-      title: item.title,
-      content: item.content,
-      excerpt: item.excerpt,
-      author: item.author,
-      image: item.image || '',
-    })
-    setEditingId(item.id)
-    setShowForm(true)
-  }
-
-  const resetForm = () => {
-    setFormData({
-      category: '공지',
-      title: '',
-      content: '',
-      excerpt: '',
-      author: '',
-      image: '',
-    })
-    setEditingId(null)
-    setShowForm(false)
-  }
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const base64 = await imageToBase64(file)
-      setFormData({ ...formData, image: base64 })
-    }
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-primary">교회 소식 관리</h2>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
-        >
-          {showForm ? '취소' : '+ 새 소식 작성'}
-        </button>
-      </div>
-
-      {showForm && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-bold mb-4">{editingId ? '소식 수정' : '새 소식 작성'}</h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                카테고리
-              </label>
-              <select
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                required
-              >
-                <option value="공지">공지</option>
-                <option value="행사">행사</option>
-                <option value="소식">소식</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                제목
-              </label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                placeholder="소식 제목을 입력하세요"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                요약
-              </label>
-              <input
-                type="text"
-                value={formData.excerpt}
-                onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                placeholder="간단한 요약을 입력하세요"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                내용
-              </label>
-              <textarea
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                rows={6}
-                placeholder="자세한 내용을 입력하세요"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                작성자
-              </label>
-              <input
-                type="text"
-                value={formData.author}
-                onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                placeholder="작성자 이름"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                이미지 업로드 (선택)
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="w-full px-4 py-2 border rounded-lg"
-              />
-              {formData.image && (
-                <div className="mt-2">
-                  <img src={formData.image} alt="Preview" className="h-32 object-cover rounded" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 교회 기본 정보 */}
+        {activeTab === 'church-info' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-2xl font-bold text-primary mb-6">교회 기본 정보</h2>
+            
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    교회명 (한글)
+                  </label>
+                  <input
+                    type="text"
+                    value={churchInfo.name}
+                    onChange={(e) => setChurchInfo({...churchInfo, name: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  />
                 </div>
-              )}
-            </div>
 
-            <div className="flex space-x-3">
-              <button
-                type="button"
-                onClick={resetForm}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-              >
-                취소
-              </button>
-              <button
-                type="submit"
-                className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light"
-              >
-                {editingId ? '수정 완료' : '등록하기'}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-bold mb-4">등록된 소식 ({news.length})</h3>
-        {news.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <p>등록된 소식이 없습니다.</p>
-            <p className="text-sm mt-2">새 소식을 작성해보세요!</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {news.map((item) => (
-              <div key={item.id} className="flex items-start justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className={`px-2 py-1 text-xs rounded ${
-                      item.category === '공지' ? 'bg-red-100 text-red-700' :
-                      item.category === '행사' ? 'bg-blue-100 text-blue-700' :
-                      'bg-green-100 text-green-700'
-                    }`}>
-                      {item.category}
-                    </span>
-                    <span className="text-xs text-gray-500">{item.date}</span>
-                    <span className="text-xs text-gray-500">조회 {item.views}</span>
-                  </div>
-                  <h4 className="font-bold text-lg mb-1">{item.title}</h4>
-                  <p className="text-sm text-gray-600">{item.excerpt}</p>
-                  <p className="text-xs text-gray-500 mt-2">작성자: {item.author}</p>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    교회명 (영문)
+                  </label>
+                  <input
+                    type="text"
+                    value={churchInfo.englishName}
+                    onChange={(e) => setChurchInfo({...churchInfo, englishName: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  />
                 </div>
-                <div className="flex flex-col space-y-2 ml-4">
-                  <button
-                    onClick={() => handleEdit(item)}
-                    className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
-                  >
-                    수정
-                  </button>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded"
-                  >
-                    삭제
-                  </button>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    대표 전화
+                  </label>
+                  <input
+                    type="tel"
+                    value={churchInfo.phone}
+                    onChange={(e) => setChurchInfo({...churchInfo, phone: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    팩스
+                  </label>
+                  <input
+                    type="tel"
+                    value={churchInfo.fax}
+                    onChange={(e) => setChurchInfo({...churchInfo, fax: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    이메일
+                  </label>
+                  <input
+                    type="email"
+                    value={churchInfo.email}
+                    onChange={(e) => setChurchInfo({...churchInfo, email: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    주소
+                  </label>
+                  <input
+                    type="text"
+                    value={churchInfo.address}
+                    onChange={(e) => setChurchInfo({...churchInfo, address: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    상세 주소
+                  </label>
+                  <input
+                    type="text"
+                    value={churchInfo.addressDetail}
+                    onChange={(e) => setChurchInfo({...churchInfo, addressDetail: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  />
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
 
-// 교회 사역 관리 탭
-function MinistryManagementTab() {
-  const [ministries, setMinistries] = useState<MinistryItem[]>([])
-  const [showForm, setShowForm] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [formData, setFormData] = useState({
-    name: '',
-    category: '교육' as '예배' | '교육' | '선교' | '친교' | '기타',
-    description: '',
-    details: '',
-    meetingTime: '',
-    meetingPlace: '',
-    leader: '',
-    contact: '',
-    image: '',
-  })
-
-  useEffect(() => {
-    setMinistries(ministryStorage.getAll())
-  }, [])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (editingId) {
-      ministryStorage.update(editingId, formData)
-    } else {
-      ministryStorage.add(formData)
-    }
-    setMinistries(ministryStorage.getAll())
-    resetForm()
-  }
-
-  const handleDelete = (id: string) => {
-    if (confirm('정말 삭제하시겠습니까?')) {
-      ministryStorage.delete(id)
-      setMinistries(ministryStorage.getAll())
-    }
-  }
-
-  const handleEdit = (item: MinistryItem) => {
-    setFormData(item)
-    setEditingId(item.id)
-    setShowForm(true)
-  }
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      category: '교육',
-      description: '',
-      details: '',
-      meetingTime: '',
-      meetingPlace: '',
-      leader: '',
-      contact: '',
-      image: '',
-    })
-    setEditingId(null)
-    setShowForm(false)
-  }
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const base64 = await imageToBase64(file)
-      setFormData({ ...formData, image: base64 })
-    }
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-primary">교회 사역 관리</h2>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
-        >
-          {showForm ? '취소' : '+ 새 사역 추가'}
-        </button>
-      </div>
-
-      {showForm && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-bold mb-4">{editingId ? '사역 수정' : '새 사역 추가'}</h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">사역명</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                  required
-                >
-                  <option value="예배">예배</option>
-                  <option value="교육">교육</option>
-                  <option value="선교">선교</option>
-                  <option value="친교">친교</option>
-                  <option value="기타">기타</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">간단한 소개</label>
-              <input
-                type="text"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                placeholder="한 줄 설명"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">상세 내용</label>
-              <textarea
-                value={formData.details}
-                onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                rows={4}
-                placeholder="사역에 대한 자세한 설명"
-                required
-              />
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">모임 시간</label>
-                <input
-                  type="text"
-                  value={formData.meetingTime}
-                  onChange={(e) => setFormData({ ...formData, meetingTime: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                  placeholder="예: 주일 오후 2시"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">모임 장소</label>
-                <input
-                  type="text"
-                  value={formData.meetingPlace}
-                  onChange={(e) => setFormData({ ...formData, meetingPlace: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                  placeholder="예: 교육관 3층"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">담당자</label>
-                <input
-                  type="text"
-                  value={formData.leader}
-                  onChange={(e) => setFormData({ ...formData, leader: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                  placeholder="담당 목사님/전도사님"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">연락처 (선택)</label>
-                <input
-                  type="text"
-                  value={formData.contact}
-                  onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                  placeholder="010-0000-0000"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">사진 업로드 (선택)</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="w-full px-4 py-2 border rounded-lg"
-              />
-              {formData.image && (
-                <div className="mt-2">
-                  <img src={formData.image} alt="Preview" className="h-32 object-cover rounded" />
-                </div>
-              )}
-            </div>
-
-            <div className="flex space-x-3">
-              <button
-                type="button"
-                onClick={resetForm}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-              >
-                취소
-              </button>
-              <button
-                type="submit"
-                className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light"
-              >
-                {editingId ? '수정 완료' : '등록하기'}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-bold mb-4">등록된 사역 ({ministries.length})</h3>
-        {ministries.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <p>등록된 사역이 없습니다.</p>
-            <p className="text-sm mt-2">새 사역을 추가해보세요!</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {ministries.map((item) => (
-              <div key={item.id} className="flex items-start justify-between p-4 border rounded-lg hover:shadow-md transition-shadow">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="px-2 py-1 text-xs bg-primary/10 text-primary rounded">
-                      {item.category}
-                    </span>
-                  </div>
-                  <h4 className="font-bold text-lg mb-1">{item.name}</h4>
-                  <p className="text-sm text-gray-600 mb-2">{item.description}</p>
-                  <div className="text-xs text-gray-500 space-y-1">
-                    <p>⏰ {item.meetingTime}</p>
-                    <p>📍 {item.meetingPlace}</p>
-                    <p>👤 {item.leader}</p>
-                  </div>
-                </div>
-                <div className="flex flex-col space-y-2 ml-4">
-                  <button
-                    onClick={() => handleEdit(item)}
-                    className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
-                  >
-                    수정
-                  </button>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded"
-                  >
-                    삭제
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// 기도 요청 관리 탭
-function PrayerManagementTab() {
-  const [prayers, setPrayers] = useState<any[]>([])
-
-  useEffect(() => {
-    setPrayers(prayerStorage.getAll())
-  }, [])
-
-  const handleDelete = (id: string) => {
-    if (confirm('정말 삭제하시겠습니까?')) {
-      prayerStorage.delete(id)
-      setPrayers(prayerStorage.getAll())
-    }
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-primary">기도 요청 관리</h2>
-        <Link
-          href="/prayer"
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
-        >
-          기도 요청 페이지로 이동
-        </Link>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-bold mb-4">등록된 기도 제목 ({prayers.length})</h3>
-        {prayers.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <p>등록된 기도 제목이 없습니다.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {prayers.map((item) => (
-              <div key={item.id} className="flex items-start justify-between p-4 border rounded-lg">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded">
-                      {item.category}
-                    </span>
-                    {item.isPrivate && (
-                      <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">
-                        비공개
-                      </span>
-                    )}
-                    <span className="text-xs text-gray-500">{item.date}</span>
-                  </div>
-                  <h4 className="font-bold text-lg mb-1">{item.title}</h4>
-                  {!item.isPrivate && (
-                    <p className="text-sm text-gray-600">{item.content}</p>
-                  )}
-                  <p className="text-xs text-gray-500 mt-2">
-                    작성자: {item.author} | 기도 {item.prayCount}회
-                  </p>
-                </div>
+              <div className="flex justify-end">
                 <button
-                  onClick={() => handleDelete(item.id)}
-                  className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded ml-4"
+                  onClick={saveChurchInfo}
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
                 >
-                  삭제
+                  저장
                 </button>
               </div>
-            ))}
+            </div>
           </div>
         )}
-      </div>
-    </div>
-  )
-}
 
-// 사진 관리 탭
-function GalleryManagementTab() {
-  const [albums, setAlbums] = useState<any[]>([])
-  const [showForm, setShowForm] = useState(false)
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: '예배' as any,
-    date: new Date().toISOString().split('T')[0],
-    images: [] as string[],
-  })
-
-  useEffect(() => {
-    setAlbums(galleryStorage.getAll())
-  }, [])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const year = parseInt(formData.date.split('-')[0])
-    galleryStorage.add({
-      ...formData,
-      year,
-      coverImage: formData.images[0],
-    })
-    setAlbums(galleryStorage.getAll())
-    resetForm()
-  }
-
-  const handleDelete = (id: string) => {
-    if (confirm('정말 삭제하시겠습니까?')) {
-      galleryStorage.delete(id)
-      setAlbums(galleryStorage.getAll())
-    }
-  }
-
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      description: '',
-      category: '예배',
-      date: new Date().toISOString().split('T')[0],
-      images: [],
-    })
-    setShowForm(false)
-  }
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-    const base64Images = await Promise.all(files.map(file => imageToBase64(file)))
-    setFormData({ ...formData, images: [...formData.images, ...base64Images] })
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-primary">사진 앨범 관리</h2>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
-        >
-          {showForm ? '취소' : '+ 새 앨범 만들기'}
-        </button>
-      </div>
-
-      {showForm && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-bold mb-4">새 앨범 만들기</h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+        {/* 담임목사 정보 */}
+        {activeTab === 'pastor' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-2xl font-bold text-primary mb-6">담임목사 정보</h2>
+            
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">앨범 제목</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  담임목사 성함
+                </label>
                 <input
                   type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                  required
+                  value={pastorInfo.name}
+                  onChange={(e) => setPastorInfo({...pastorInfo, name: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  학력 (줄바꿈으로 구분)
+                </label>
+                <textarea
+                  value={pastorInfo.education.join('\n')}
+                  onChange={(e) => setPastorInfo({
+                    ...pastorInfo,
+                    education: e.target.value.split('\n').filter(line => line.trim())
+                  })}
+                  rows={4}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  placeholder="예: 호서대학교 신학과 졸업 (B.A.)"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  목회 철학 / 메시지
+                </label>
+                <textarea
+                  value={pastorInfo.message}
+                  onChange={(e) => setPastorInfo({...pastorInfo, message: e.target.value})}
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  onClick={savePastorInfo}
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
                 >
-                  <option value="예배">예배</option>
-                  <option value="행사">행사</option>
-                  <option value="선교">선교</option>
-                  <option value="교육">교육</option>
-                  <option value="친교">친교</option>
-                </select>
+                  저장
+                </button>
               </div>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">날짜</label>
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">설명</label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                사진 업로드 (여러 장 가능)
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-                className="w-full px-4 py-2 border rounded-lg"
-              />
-              {formData.images.length > 0 && (
-                <div className="mt-2 grid grid-cols-4 gap-2">
-                  {formData.images.map((img, idx) => (
-                    <img key={idx} src={img} alt={`Preview ${idx + 1}`} className="h-24 w-full object-cover rounded" />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="flex space-x-3">
-              <button
-                type="button"
-                onClick={resetForm}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-              >
-                취소
-              </button>
-              <button
-                type="submit"
-                className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light"
-                disabled={formData.images.length === 0}
-              >
-                등록하기
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-bold mb-4">등록된 앨범 ({albums.length})</h3>
-        {albums.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <p>등록된 앨범이 없습니다.</p>
-            <p className="text-sm mt-2">새 앨범을 만들어보세요!</p>
           </div>
-        ) : (
-          <div className="grid md:grid-cols-3 gap-4">
-            {albums.map((album) => (
-              <div key={album.id} className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-                {album.coverImage && (
-                  <img src={album.coverImage} alt={album.title} className="w-full h-48 object-cover" />
-                )}
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                      {album.category}
-                    </span>
-                    <span className="text-xs text-gray-500">{album.date}</span>
+        )}
+
+        {/* 예배 시간 */}
+        {activeTab === 'worship' && (
+          <div className="space-y-6">
+            {/* 주일 예배 */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-2xl font-bold text-primary mb-6">주일 예배</h2>
+              
+              <div className="space-y-4">
+                {sundayWorship.map((worship, index) => (
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                    <input
+                      type="text"
+                      value={worship.name}
+                      onChange={(e) => {
+                        const updated = [...sundayWorship]
+                        updated[index].name = e.target.value
+                        setSundayWorship(updated)
+                      }}
+                      placeholder="예배 이름"
+                      className="px-4 py-2 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="text"
+                      value={worship.time}
+                      onChange={(e) => {
+                        const updated = [...sundayWorship]
+                        updated[index].time = e.target.value
+                        setSundayWorship(updated)
+                      }}
+                      placeholder="시간"
+                      className="px-4 py-2 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="text"
+                      value={worship.description}
+                      onChange={(e) => {
+                        const updated = [...sundayWorship]
+                        updated[index].description = e.target.value
+                        setSundayWorship(updated)
+                      }}
+                      placeholder="설명"
+                      className="px-4 py-2 border border-gray-300 rounded-lg"
+                    />
                   </div>
-                  <h4 className="font-bold mb-1">{album.title}</h4>
-                  <p className="text-sm text-gray-600 mb-2">{album.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">{album.images.length}장</span>
-                    <button
-                      onClick={() => handleDelete(album.id)}
-                      className="text-xs text-red-600 hover:underline"
-                    >
-                      삭제
-                    </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 주중 예배 */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-2xl font-bold text-primary mb-6">주중 예배</h2>
+              
+              <div className="space-y-4">
+                {weekdayWorship.map((worship, index) => (
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                    <input
+                      type="text"
+                      value={worship.name}
+                      onChange={(e) => {
+                        const updated = [...weekdayWorship]
+                        updated[index].name = e.target.value
+                        setWeekdayWorship(updated)
+                      }}
+                      placeholder="예배 이름"
+                      className="px-4 py-2 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="text"
+                      value={worship.time}
+                      onChange={(e) => {
+                        const updated = [...weekdayWorship]
+                        updated[index].time = e.target.value
+                        setWeekdayWorship(updated)
+                      }}
+                      placeholder="시간"
+                      className="px-4 py-2 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="text"
+                      value={worship.description}
+                      onChange={(e) => {
+                        const updated = [...weekdayWorship]
+                        updated[index].description = e.target.value
+                        setWeekdayWorship(updated)
+                      }}
+                      placeholder="설명"
+                      className="px-4 py-2 border border-gray-300 rounded-lg"
+                    />
                   </div>
+                ))}
+              </div>
+
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={saveWorshipTimes}
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+                >
+                  저장
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 팝업 배너 */}
+        {activeTab === 'popup' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-2xl font-bold text-primary mb-6">팝업 배너 관리</h2>
+            
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  id="popup-enabled"
+                  checked={popupData.enabled}
+                  onChange={(e) => setPopupData({...popupData, enabled: e.target.checked})}
+                  className="w-5 h-5 text-primary rounded"
+                />
+                <label htmlFor="popup-enabled" className="text-sm font-medium text-gray-700">
+                  팝업 활성화 (체크하면 홈페이지 시작 시 팝업이 표시됩니다)
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  팝업 제목
+                </label>
+                <input
+                  type="text"
+                  value={popupData.title}
+                  onChange={(e) => setPopupData({...popupData, title: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  placeholder="예: 2024 신년 부흥회"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  팝업 내용
+                </label>
+                <textarea
+                  value={popupData.content}
+                  onChange={(e) => setPopupData({...popupData, content: e.target.value})}
+                  rows={8}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  placeholder="팝업에 표시될 내용을 입력하세요"
+                />
+                <p className="mt-2 text-sm text-gray-500">💡 줄바꿈은 자동으로 적용됩니다</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    버튼 텍스트
+                  </label>
+                  <input
+                    type="text"
+                    value={popupData.linkText}
+                    onChange={(e) => setPopupData({...popupData, linkText: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                    placeholder="예: 자세히 보기"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    버튼 링크 (선택사항)
+                  </label>
+                  <input
+                    type="text"
+                    value={popupData.linkUrl}
+                    onChange={(e) => setPopupData({...popupData, linkUrl: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                    placeholder="/news 또는 https://..."
+                  />
                 </div>
               </div>
-            ))}
+
+              <div className="flex justify-end">
+                <button
+                  onClick={savePopupData}
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+                >
+                  저장
+                </button>
+              </div>
+
+              {/* 미리보기 */}
+              <div className="mt-8 p-6 bg-gray-50 rounded-lg">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">미리보기</h3>
+                <div className="bg-white rounded-lg p-6 shadow-lg max-w-md mx-auto">
+                  <h2 className="text-2xl font-bold text-primary mb-4">{popupData.title}</h2>
+                  <div className="text-gray-700 whitespace-pre-line mb-6">{popupData.content}</div>
+                  {popupData.linkText && (
+                    <button className="w-full bg-primary text-white py-2 rounded-lg">
+                      {popupData.linkText}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 메인 배너 (히어로 섹션) */}
+        {activeTab === 'hero' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-2xl font-bold text-primary mb-6">메인 배너 (히어로 섹션)</h2>
+            
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  메인 제목
+                </label>
+                <textarea
+                  value={heroContent.title}
+                  onChange={(e) => setHeroContent({...heroContent, title: e.target.value})}
+                  rows={2}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  placeholder="예: 하나님의 사랑으로\n함께하는 공동체"
+                />
+                <p className="mt-2 text-sm text-gray-500">💡 줄바꿈(\n)을 입력하면 다음 줄로 이동합니다</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  부제목 (상단)
+                </label>
+                <input
+                  type="text"
+                  value={heroContent.subtitle}
+                  onChange={(e) => setHeroContent({...heroContent, subtitle: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  placeholder="예: 예수 그리스도의 복음으로 세워진"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  설명 (하단)
+                </label>
+                <input
+                  type="text"
+                  value={heroContent.description}
+                  onChange={(e) => setHeroContent({...heroContent, description: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  placeholder="예: 생명과 소망이 넘치는 교회"
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  onClick={saveHeroContent}
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+                >
+                  저장
+                </button>
+              </div>
+
+              {/* 미리보기 */}
+              <div className="mt-8 p-6 bg-gradient-to-br from-primary to-primary-light rounded-lg">
+                <div className="text-center text-white">
+                  <p className="text-lg mb-4">{heroContent.subtitle}</p>
+                  <h1 className="text-4xl md:text-5xl font-bold mb-4 whitespace-pre-line">
+                    {heroContent.title}
+                  </h1>
+                  <p className="text-xl">{heroContent.description}</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
-    </div>
-  )
-}
 
-// 교회 정보 탭은 기존 코드 유지하되 간소화
-function ChurchInfoTab() {
-  return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <h2 className="text-xl font-bold text-primary mb-4">교회 기본 정보</h2>
-      <p className="text-gray-600 mb-4">
-        교회 정보는 이전 버전의 관리자 페이지를 참고하세요.
-      </p>
-      <div className="p-4 bg-blue-50 rounded-lg">
-        <p className="text-sm text-blue-900">
-          교회 이름, 전화번호, 주소 등의 기본 정보를 수정할 수 있습니다.
-        </p>
-      </div>
-    </div>
-  )
-}
-
-// 설정 탭
-function SettingsTab() {
-  return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <h2 className="text-xl font-bold text-primary mb-4">설정</h2>
-      <div className="p-4 bg-gray-50 rounded-lg">
-        <p className="text-sm text-gray-700 mb-2">
-          현재 비밀번호: <code className="bg-white px-2 py-1 rounded">joosung2025</code>
-        </p>
-        <p className="text-xs text-gray-600">
-          비밀번호를 변경하려면 <code>/app/admin/page.tsx</code> 파일에서 <code>ADMIN_PASSWORD</code> 값을 수정하세요.
-        </p>
+      {/* 도움말 */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <h3 className="text-lg font-bold text-blue-900 mb-2">💡 사용 안내</h3>
+          <ul className="text-sm text-blue-800 space-y-2">
+            <li>• 각 탭에서 정보를 수정하고 <strong>저장 버튼</strong>을 클릭하세요</li>
+            <li>• 저장된 정보는 홈페이지에 <strong>즉시 반영</strong>됩니다</li>
+            <li>• 팝업 배너는 체크박스로 활성화/비활성화할 수 있습니다</li>
+            <li>• 브라우저를 새로고침하면 변경사항을 확인할 수 있습니다</li>
+          </ul>
+        </div>
       </div>
     </div>
   )
