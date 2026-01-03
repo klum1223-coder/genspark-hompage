@@ -103,7 +103,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg text-primary mb-1">이메일</h3>
-                    <p className="text-gray-700">info@joosungchurch.com</p>
+                    <p className="text-gray-700">klum3@naver.com</p>
                   </div>
                 </div>
               </div>

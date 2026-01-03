@@ -119,8 +119,8 @@ export default function AboutPage() {
                   <p className="text-gray-600 mb-4">담임목사 / Senior Pastor</p>
                   
                   <div className="space-y-2 text-gray-700">
-                    <p>총신대학교 신학과 졸업 (B.A.)</p>
-                    <p>총신대학교 신학대학원 목회학 석사 (M.Div.)</p>
+                    <p>호서대학교 신학과 졸업 (B.A.)</p>
+                    <p>서울신학대학교 대학원 목회학 석사 (M.Div.)</p>
                   </div>
 
                   <div className="mt-6 p-4 bg-beige rounded-md">
@@ -196,7 +196,7 @@ export default function AboutPage() {
                   <div className="text-2xl">✉️</div>
                   <div>
                     <h4 className="font-bold text-primary mb-1">이메일</h4>
-                    <p className="text-gray-700">info@joosungchurch.com</p>
+                    <p className="text-gray-700">klum3@naver.com</p>
                   </div>
                 </div>
               </div>

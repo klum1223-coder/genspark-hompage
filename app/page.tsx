@@ -382,7 +382,7 @@ export default function Home() {
                 <div className="text-2xl">✉️</div>
                 <div>
                   <h4 className="font-bold text-primary mb-1">이메일</h4>
-                  <p className="text-sm text-gray-600">info@joosungchurch.com</p>
+                  <p className="text-sm text-gray-600">klum3@naver.com</p>
                 </div>
               </div>
             </div>

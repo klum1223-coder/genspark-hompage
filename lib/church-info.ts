@@ -12,7 +12,7 @@ export const CHURCH_INFO = {
   contact: {
     phone: '02-1234-5678',
     fax: '02-1234-5679',
-    email: 'info@joosungchurch.com',
+    email: 'klum3@naver.com',
     address: '서울시 강남구 테헤란로 123',
     addressDetail: '주성빌딩 2층',
   },
@@ -44,8 +44,8 @@ export const CHURCH_INFO = {
     name: '김선우 목사',
     title: '담임목사',
     education: [
-      '총신대학교 신학과 졸업 (B.A.)',
-      '총신대학교 신학대학원 목회학 석사 (M.Div.)',
+      '호서대학교 신학과 졸업 (B.A.)',
+      '서울신학대학교 대학원 목회학 석사 (M.Div.)',
     ],
     message: '하나님의 말씀으로 세워지고, 사랑으로 하나 되며, 복음으로 세상을 섬기는 교회를 꿈꿉니다.',
   },

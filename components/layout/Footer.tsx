@@ -8,7 +8,7 @@ export default function Footer() {
   const [churchInfo, setChurchInfo] = useState({
     name: '주성성결교회',
     phone: '02-1234-5678',
-    email: 'info@joosungchurch.com',
+    email: 'klum3@naver.com',
     address: '서울시 강남구 테헤란로 123',
   })
   const [worshipTimes, setWorshipTimes] = useState({
