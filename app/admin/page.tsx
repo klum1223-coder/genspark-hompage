@@ -72,6 +72,17 @@ interface PrayerRequest {
   isPublic: boolean
 }
 
+interface SiteStyles {
+  primaryColor: string
+  secondaryColor: string
+  backgroundColor: string
+  textColor: string
+  fontSize: string
+  sectionSpacing: string
+  borderRadius: string
+  customCSS: string
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -196,6 +207,18 @@ export default function AdminPage() {
     }
   ])
 
+  // 사이트 스타일
+  const [siteStyles, setSiteStyles] = useState<SiteStyles>({
+    primaryColor: '#8B4513',
+    secondaryColor: '#F5E6D3',
+    backgroundColor: '#FFFFFF',
+    textColor: '#1F2937',
+    fontSize: '16',
+    sectionSpacing: '80',
+    borderRadius: '8',
+    customCSS: ''
+  })
+
   const ADMIN_PASSWORD = 'joosung2025'
 
   useEffect(() => {
@@ -261,6 +284,13 @@ export default function AdminPage() {
     const savedPrayers = localStorage.getItem('prayer_requests')
     if (savedPrayers) {
       setPrayerRequests(JSON.parse(savedPrayers))
+    }
+
+    // 사이트 스타일 로드
+    const savedStyles = localStorage.getItem('site_styles')
+    if (savedStyles) {
+      setSiteStyles(JSON.parse(savedStyles))
+      applyStyles(JSON.parse(savedStyles))
     }
   }
 
@@ -333,6 +363,47 @@ export default function AdminPage() {
   const savePrayerRequests = () => {
     localStorage.setItem('prayer_requests', JSON.stringify(prayerRequests))
     showSaveMessage()
+  }
+
+  const saveSiteStyles = () => {
+    localStorage.setItem('site_styles', JSON.stringify(siteStyles))
+    applyStyles(siteStyles)
+    showSaveMessage()
+  }
+
+  const applyStyles = (styles: SiteStyles) => {
+    const root = document.documentElement
+    root.style.setProperty('--primary-color', styles.primaryColor)
+    root.style.setProperty('--secondary-color', styles.secondaryColor)
+    root.style.setProperty('--bg-color', styles.backgroundColor)
+    root.style.setProperty('--text-color', styles.textColor)
+    root.style.setProperty('--font-size', styles.fontSize + 'px')
+    root.style.setProperty('--section-spacing', styles.sectionSpacing + 'px')
+    root.style.setProperty('--border-radius', styles.borderRadius + 'px')
+    
+    // 커스텀 CSS 적용
+    let styleElement = document.getElementById('custom-css')
+    if (!styleElement) {
+      styleElement = document.createElement('style')
+      styleElement.id = 'custom-css'
+      document.head.appendChild(styleElement)
+    }
+    styleElement.textContent = styles.customCSS
+  }
+
+  const resetStyles = () => {
+    const defaultStyles: SiteStyles = {
+      primaryColor: '#8B4513',
+      secondaryColor: '#F5E6D3',
+      backgroundColor: '#FFFFFF',
+      textColor: '#1F2937',
+      fontSize: '16',
+      sectionSpacing: '80',
+      borderRadius: '8',
+      customCSS: ''
+    }
+    setSiteStyles(defaultStyles)
+    applyStyles(defaultStyles)
   }
 
   const addMinistry = () => {
@@ -480,7 +551,8 @@ export default function AdminPage() {
               { id: 'news', label: '📰 교회소식' },
               { id: 'prayer', label: '🙏 기도요청' },
               { id: 'popup', label: '📢 팝업배너' },
-              { id: 'hero', label: '🎨 메인배너' }
+              { id: 'hero', label: '🎨 메인배너' },
+              { id: 'styles', label: '🎨 스타일' }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -1357,6 +1429,253 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+
+        {/* 스타일 & 레이아웃 */}
+        {activeTab === 'styles' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-2xl font-bold text-primary mb-6">🎨 스타일 & 레이아웃 커스터마이징</h2>
+            
+            <div className="space-y-8">
+              {/* 색상 설정 */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">색상 설정</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      주 색상 (Primary)
+                    </label>
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="color"
+                        value={siteStyles.primaryColor}
+                        onChange={(e) => setSiteStyles({...siteStyles, primaryColor: e.target.value})}
+                        className="w-16 h-10 rounded border border-gray-300 cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={siteStyles.primaryColor}
+                        onChange={(e) => setSiteStyles({...siteStyles, primaryColor: e.target.value})}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                        placeholder="#8B4513"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      보조 색상 (Secondary)
+                    </label>
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="color"
+                        value={siteStyles.secondaryColor}
+                        onChange={(e) => setSiteStyles({...siteStyles, secondaryColor: e.target.value})}
+                        className="w-16 h-10 rounded border border-gray-300 cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={siteStyles.secondaryColor}
+                        onChange={(e) => setSiteStyles({...siteStyles, secondaryColor: e.target.value})}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                        placeholder="#F5E6D3"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      배경 색상
+                    </label>
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="color"
+                        value={siteStyles.backgroundColor}
+                        onChange={(e) => setSiteStyles({...siteStyles, backgroundColor: e.target.value})}
+                        className="w-16 h-10 rounded border border-gray-300 cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={siteStyles.backgroundColor}
+                        onChange={(e) => setSiteStyles({...siteStyles, backgroundColor: e.target.value})}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                        placeholder="#FFFFFF"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      텍스트 색상
+                    </label>
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="color"
+                        value={siteStyles.textColor}
+                        onChange={(e) => setSiteStyles({...siteStyles, textColor: e.target.value})}
+                        className="w-16 h-10 rounded border border-gray-300 cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={siteStyles.textColor}
+                        onChange={(e) => setSiteStyles({...siteStyles, textColor: e.target.value})}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                        placeholder="#1F2937"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 레이아웃 설정 */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">레이아웃 설정</h3>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      기본 폰트 크기: {siteStyles.fontSize}px
+                    </label>
+                    <input
+                      type="range"
+                      min="12"
+                      max="20"
+                      value={siteStyles.fontSize}
+                      onChange={(e) => setSiteStyles({...siteStyles, fontSize: e.target.value})}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>작게 (12px)</span>
+                      <span>보통 (16px)</span>
+                      <span>크게 (20px)</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      섹션 간격: {siteStyles.sectionSpacing}px
+                    </label>
+                    <input
+                      type="range"
+                      min="40"
+                      max="120"
+                      step="10"
+                      value={siteStyles.sectionSpacing}
+                      onChange={(e) => setSiteStyles({...siteStyles, sectionSpacing: e.target.value})}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>좁게 (40px)</span>
+                      <span>보통 (80px)</span>
+                      <span>넓게 (120px)</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      모서리 둥글기: {siteStyles.borderRadius}px
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="24"
+                      step="2"
+                      value={siteStyles.borderRadius}
+                      onChange={(e) => setSiteStyles({...siteStyles, borderRadius: e.target.value})}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>각지게 (0px)</span>
+                      <span>보통 (8px)</span>
+                      <span>둥글게 (24px)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 커스텀 CSS */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">고급: 커스텀 CSS</h3>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    CSS 코드 (고급 사용자용)
+                  </label>
+                  <textarea
+                    value={siteStyles.customCSS}
+                    onChange={(e) => setSiteStyles({...siteStyles, customCSS: e.target.value})}
+                    rows={8}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg font-mono text-sm"
+                    placeholder="/* 예시:&#10;.section-padding {&#10;  padding: 100px 0;&#10;}&#10;&#10;.card {&#10;  box-shadow: 0 4px 12px rgba(0,0,0,0.1);&#10;} */"
+                  />
+                  <p className="mt-2 text-sm text-gray-500">
+                    💡 CSS를 아시는 경우 직접 스타일을 추가할 수 있습니다
+                  </p>
+                </div>
+              </div>
+
+              {/* 미리보기 */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">👀 미리보기</h3>
+                <div 
+                  className="p-8 rounded-lg border-2"
+                  style={{
+                    backgroundColor: siteStyles.backgroundColor,
+                    color: siteStyles.textColor,
+                    fontSize: siteStyles.fontSize + 'px'
+                  }}
+                >
+                  <div 
+                    className="p-6 rounded-lg text-white mb-4"
+                    style={{
+                      backgroundColor: siteStyles.primaryColor,
+                      borderRadius: siteStyles.borderRadius + 'px'
+                    }}
+                  >
+                    <h3 className="text-2xl font-bold mb-2">주 색상 미리보기</h3>
+                    <p>이것은 주 색상을 사용한 예시입니다</p>
+                  </div>
+                  <div 
+                    className="p-6 rounded-lg mb-4"
+                    style={{
+                      backgroundColor: siteStyles.secondaryColor,
+                      color: siteStyles.textColor,
+                      borderRadius: siteStyles.borderRadius + 'px'
+                    }}
+                  >
+                    <h3 className="text-xl font-bold mb-2">보조 색상 미리보기</h3>
+                    <p>이것은 보조 색상을 사용한 예시입니다</p>
+                  </div>
+                  <p>기본 텍스트 크기와 색상 미리보기</p>
+                </div>
+              </div>
+
+              {/* 버튼들 */}
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={resetStyles}
+                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                >
+                  🔄 기본값으로 초기화
+                </button>
+                <button
+                  onClick={saveSiteStyles}
+                  className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
+                >
+                  💾 저장 및 적용
+                </button>
+              </div>
+
+              {/* 안내 메시지 */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-bold text-blue-900 mb-2">💡 사용 팁</h4>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• 색상은 색상 선택기 또는 HEX 코드로 입력할 수 있습니다</li>
+                  <li>• 변경 후 "저장 및 적용" 버튼을 눌러야 홈페이지에 반영됩니다</li>
+                  <li>• 미리보기에서 변경사항을 먼저 확인하세요</li>
+                  <li>• 마음에 들지 않으면 "기본값으로 초기화"를 눌러 원래대로 돌아갈 수 있습니다</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 도움말 */}
@@ -1364,9 +1683,10 @@ export default function AdminPage() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h3 className="text-lg font-bold text-blue-900 mb-2">💡 사용 안내</h3>
           <ul className="text-sm text-blue-800 space-y-2">
-            <li>• <strong>9개의 탭</strong>에서 홈페이지의 모든 내용을 수정할 수 있습니다</li>
+            <li>• <strong>10개의 탭</strong>에서 홈페이지의 모든 내용을 수정할 수 있습니다</li>
             <li>• 각 항목을 수정한 후 반드시 <strong>💾 저장하기 버튼</strong>을 클릭하세요</li>
             <li>• 저장하면 홈페이지에 <strong>즉시 반영</strong>됩니다 (새로고침 필요)</li>
+            <li>• <strong>🎨 스타일 탭</strong>에서 색상, 폰트, 간격 등을 직접 조절할 수 있습니다</li>
             <li>• 교회 소식, 사역, 기도 요청은 <strong>추가/수정/삭제</strong>가 모두 가능합니다</li>
             <li>• 모든 데이터는 브라우저에 저장되므로 <strong>정기적으로 백업</strong>하세요</li>
           </ul>

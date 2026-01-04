@@ -6,10 +6,22 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 210 24% 16%;
+    
+    /* 커스터마이징 가능한 CSS 변수 */
+    --primary-color: #8B4513;
+    --secondary-color: #F5E6D3;
+    --bg-color: #FFFFFF;
+    --text-color: #1F2937;
+    --font-size: 16px;
+    --section-spacing: 80px;
+    --border-radius: 8px;
   }
   
   body {
     @apply antialiased;
+    font-size: var(--font-size);
+    color: var(--text-color);
+    background-color: var(--bg-color);
   }
 }
 
@@ -19,19 +31,50 @@
   }
   
   .section-padding {
-    @apply py-12 md:py-16 lg:py-20;
+    padding-top: var(--section-spacing);
+    padding-bottom: var(--section-spacing);
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300;
+    @apply bg-white shadow-md hover:shadow-lg transition-shadow duration-300;
+    border-radius: var(--border-radius);
   }
   
   .btn-primary {
-    @apply bg-primary text-white px-6 py-3 rounded-md hover:bg-primary-light transition-colors duration-300;
+    @apply text-white px-6 py-3 transition-colors duration-300;
+    background-color: var(--primary-color);
+    border-radius: var(--border-radius);
+  }
+  
+  .btn-primary:hover {
+    filter: brightness(1.1);
   }
   
   .btn-secondary {
-    @apply bg-beige text-primary px-6 py-3 rounded-md hover:bg-beige-dark transition-colors duration-300;
+    @apply text-primary px-6 py-3 transition-colors duration-300;
+    background-color: var(--secondary-color);
+    border-radius: var(--border-radius);
+  }
+  
+  .btn-secondary:hover {
+    filter: brightness(0.95);
+  }
+  
+  /* 주 색상을 사용하는 요소들 */
+  .text-primary {
+    color: var(--primary-color) !important;
+  }
+  
+  .bg-primary {
+    background-color: var(--primary-color) !important;
+  }
+  
+  .bg-beige {
+    background-color: var(--secondary-color) !important;
+  }
+  
+  .border-primary {
+    border-color: var(--primary-color) !important;
   }
 }
 

@@ -4,6 +4,7 @@ import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import AdminFloatingButton from '@/components/shared/AdminFloatingButton'
+import StyleLoader from '@/components/StyleLoader'
 
 const notoSansKr = Noto_Sans_KR({
   subsets: ['latin'],
@@ -26,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="ko" className={notoSansKr.variable}>
       <body className="font-sans antialiased">
+        <StyleLoader />
         <Header />
         <main className="min-h-screen">
           {children}
