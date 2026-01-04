@@ -60,6 +60,15 @@ interface Ministry {
   image?: string
 }
 
+interface MinistryGallery {
+  id: string
+  title: string
+  category: string
+  description: string
+  image: string
+  date: string
+}
+
 interface NewsItem {
   id: string
   title: string
@@ -205,6 +214,9 @@ export default function AdminPage() {
     }
   ])
 
+  // 교회 사역 갤러리 (탭 페이지용)
+  const [ministryGallery, setMinistryGallery] = useState<MinistryGallery[]>([])
+
   // 교회 소식
   const [newsItems, setNewsItems] = useState<NewsItem[]>([
     {
@@ -309,6 +321,12 @@ export default function AdminPage() {
       setMinistries(JSON.parse(savedMinistries))
     }
 
+    // 교회 사역 갤러리 로드
+    const savedMinistryGallery = localStorage.getItem('ministry_gallery')
+    if (savedMinistryGallery) {
+      setMinistryGallery(JSON.parse(savedMinistryGallery))
+    }
+
     // 교회 소식 로드
     const savedNews = localStorage.getItem('news_items')
     if (savedNews) {
@@ -404,6 +422,28 @@ export default function AdminPage() {
     localStorage.setItem('ministries', JSON.stringify(ministries))
     console.log('Saved ministries:', ministries)
     showSaveMessage()
+  }
+
+  const saveMinistryGallery = () => {
+    localStorage.setItem('ministry_gallery', JSON.stringify(ministryGallery))
+    console.log('Saved ministry gallery:', ministryGallery)
+    showSaveMessage()
+  }
+
+  const addMinistryGalleryItem = () => {
+    const newItem: MinistryGallery = {
+      id: Date.now().toString(),
+      title: '새 사역',
+      category: '예배',
+      description: '',
+      image: '',
+      date: new Date().toISOString().split('T')[0]
+    }
+    setMinistryGallery([...ministryGallery, newItem])
+  }
+
+  const deleteMinistryGalleryItem = (id: string) => {
+    setMinistryGallery(ministryGallery.filter(item => item.id !== id))
   }
 
   const saveNewsItems = () => {
@@ -624,6 +664,7 @@ export default function AdminPage() {
               { id: 'worship', label: '⛪ 예배시간' },
               { id: 'about', label: '📖 교회소개' },
               { id: 'ministry', label: '🎯 교회사역' },
+              { id: 'ministry-gallery', label: '📸 사역갤러리' },
               { id: 'sermon', label: '🎤 설교관리' },
               { id: 'news', label: '📰 교회소식' },
               { id: 'prayer', label: '🙏 기도요청' },
@@ -1130,6 +1171,153 @@ export default function AdminPage() {
             <div className="flex justify-end mt-6">
               <button
                 onClick={saveMinistries}
+                className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
+              >
+                💾 저장하기
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 사역 갤러리 (탭 페이지용) */}
+        {activeTab === 'ministry-gallery' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-primary mb-2">사역 갤러리 관리</h2>
+                <p className="text-sm text-gray-600">교회사역 탭 페이지에 표시될 사역 활동 사진을 관리합니다</p>
+              </div>
+              <button
+                onClick={addMinistryGalleryItem}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                ➕ 사역 추가
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              {ministryGallery.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  <p className="text-lg mb-2">등록된 사역이 없습니다.</p>
+                  <p className="text-sm">➕ 사역 추가 버튼을 눌러 새 사역을 등록해주세요.</p>
+                </div>
+              ) : (
+                ministryGallery.map((item, index) => (
+                  <div key={item.id} className="p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          사역 제목 *
+                        </label>
+                        <input
+                          type="text"
+                          value={item.title}
+                          onChange={(e) => {
+                            const updated = [...ministryGallery]
+                            updated[index].title = e.target.value
+                            setMinistryGallery(updated)
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                          placeholder="예: 2024 성탄절 예배"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          카테고리 *
+                        </label>
+                        <select
+                          value={item.category}
+                          onChange={(e) => {
+                            const updated = [...ministryGallery]
+                            updated[index].category = e.target.value
+                            setMinistryGallery(updated)
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        >
+                          <option value="예배">예배</option>
+                          <option value="교육">교육</option>
+                          <option value="선교">선교</option>
+                          <option value="친교">친교</option>
+                          <option value="기타">기타</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          날짜 *
+                        </label>
+                        <input
+                          type="date"
+                          value={item.date}
+                          onChange={(e) => {
+                            const updated = [...ministryGallery]
+                            updated[index].date = e.target.value
+                            setMinistryGallery(updated)
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          사진 URL *
+                        </label>
+                        <input
+                          type="url"
+                          value={item.image}
+                          onChange={(e) => {
+                            const updated = [...ministryGallery]
+                            updated[index].image = e.target.value
+                            setMinistryGallery(updated)
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                          placeholder="https://example.com/image.jpg"
+                        />
+                        {item.image && (
+                          <div className="mt-3">
+                            <img 
+                              src={item.image} 
+                              alt={item.title}
+                              className="w-full max-w-md h-48 object-cover rounded-lg shadow-md"
+                              onError={(e) => {
+                                e.currentTarget.src = ''
+                                e.currentTarget.alt = '이미지 로드 실패'
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          설명
+                        </label>
+                        <textarea
+                          value={item.description}
+                          onChange={(e) => {
+                            const updated = [...ministryGallery]
+                            updated[index].description = e.target.value
+                            setMinistryGallery(updated)
+                          }}
+                          rows={3}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                          placeholder="사역 활동에 대한 간단한 설명을 입력하세요"
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-4 flex justify-end">
+                      <button
+                        onClick={() => deleteMinistryGalleryItem(item.id)}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                      >
+                        🗑️ 삭제
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={saveMinistryGallery}
                 className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
               >
                 💾 저장하기
