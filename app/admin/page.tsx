@@ -16,7 +16,9 @@ interface ChurchInfo {
 interface PastorInfo {
   name: string
   education: string[]
+  career: string[]
   message: string
+  photo?: string
 }
 
 interface WorshipTime {
@@ -55,6 +57,7 @@ interface Ministry {
   icon: string
   description: string
   detailContent: string
+  image?: string
 }
 
 interface NewsItem {
@@ -121,7 +124,12 @@ export default function AdminPage() {
       '호서대학교 신학과 졸업 (B.A.)',
       '서울신학대학교 대학원 목회학 석사 (M.Div.)'
     ],
-    message: '하나님의 말씀으로 세워지고, 사랑으로 하나 되며, 복음으로 세상을 섬기는 교회를 꿈꿉니다.'
+    career: [
+      '희망도서관 청주지부장',
+      '글쓰기 운동본부 충북지역장'
+    ],
+    message: '하나님의 말씀으로 세워지고, 사랑으로 하나 되며, 복음으로 세상을 섬기는 교회를 꿈꿉니다.',
+    photo: '/pastor-photo.jpg'
   })
 
   // 예배 시간
@@ -781,6 +789,22 @@ export default function AdminPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  경력 (줄바꿈으로 구분)
+                </label>
+                <textarea
+                  value={pastorInfo.career?.join('\n') || ''}
+                  onChange={(e) => setPastorInfo({
+                    ...pastorInfo,
+                    career: e.target.value.split('\n').filter(line => line.trim())
+                  })}
+                  rows={4}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  placeholder="예: 희망도서관 청주지부장"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   목회 철학 / 메시지
                 </label>
                 <textarea
@@ -1048,7 +1072,35 @@ export default function AdminPage() {
                     </div>
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        상세 내용
+                        사역 이미지 URL (선택사항)
+                      </label>
+                      <input
+                        type="url"
+                        value={ministry.image || ''}
+                        onChange={(e) => {
+                          const updated = [...ministries]
+                          updated[index].image = e.target.value
+                          setMinistries(updated)
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        placeholder="https://example.com/image.jpg"
+                      />
+                      {ministry.image && (
+                        <div className="mt-2">
+                          <img 
+                            src={ministry.image} 
+                            alt={ministry.title}
+                            className="w-32 h-32 object-cover rounded-lg"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none'
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        상세 내용 (또는 블로그 URL)
                       </label>
                       <textarea
                         value={ministry.detailContent}
@@ -1059,6 +1111,7 @@ export default function AdminPage() {
                         }}
                         rows={3}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        placeholder="상세 내용을 입력하거나 블로그 URL을 입력하세요"
                       />
                     </div>
                   </div>

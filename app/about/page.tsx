@@ -5,7 +5,9 @@ import { useEffect, useState } from 'react'
 interface PastorInfo {
   name: string
   education: string[]
+  career: string[]
   message: string
+  photo?: string
 }
 
 interface AboutContent {
@@ -32,7 +34,12 @@ export default function AboutPage() {
       '호서대학교 신학과 졸업 (B.A.)',
       '서울신학대학교 대학원 목회학 석사 (M.Div.)'
     ],
-    message: '하나님의 말씀으로 세워지고, 사랑으로 하나 되며, 복음으로 세상을 섬기는 교회를 꿈꿉니다.'
+    career: [
+      '희망도서관 청주지부장',
+      '글쓰기 운동본부 충북지역장'
+    ],
+    message: '하나님의 말씀으로 세워지고, 사랑으로 하나 되며, 복음으로 세상을 섬기는 교회를 꿈꿉니다.',
+    photo: '/pastor-photo.jpg'
   })
 
   const [aboutContent, setAboutContent] = useState<AboutContent>({
@@ -183,34 +190,73 @@ export default function AboutPage() {
               <div className="w-20 h-1 bg-primary mx-auto"></div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-lg p-8 md:p-12">
-              <div className="text-center mb-8">
-                <div className="w-32 h-32 bg-gradient-to-br from-primary to-primary-light rounded-full mx-auto mb-6 flex items-center justify-center text-white text-4xl">
-                  👨‍🏫
-                </div>
-                <h3 className="text-2xl font-bold text-primary mb-2">
-                  {pastorInfo.name}
-                </h3>
-                <p className="text-gray-600">담임목사 / Senior Pastor</p>
-              </div>
-
-              <div className="space-y-6">
-                <div>
-                  <h4 className="font-bold text-primary mb-3 text-lg">학력</h4>
-                  <ul className="space-y-2">
-                    {pastorInfo.education.map((edu, index) => (
-                      <li key={index} className="flex items-start space-x-2">
-                        <span className="text-primary mt-1">•</span>
-                        <span className="text-gray-700">{edu}</span>
-                      </li>
-                    ))}
-                  </ul>
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+                {/* 사진 영역 */}
+                <div className="md:col-span-2 bg-gradient-to-br from-beige to-beige-dark p-8 flex items-center justify-center">
+                  <div className="relative w-full max-w-sm">
+                    {pastorInfo.photo ? (
+                      <img 
+                        src={pastorInfo.photo}
+                        alt={pastorInfo.name}
+                        className="w-full h-auto rounded-lg shadow-xl object-cover"
+                      />
+                    ) : (
+                      <div className="w-full aspect-[3/4] bg-gradient-to-br from-primary to-primary-light rounded-lg flex items-center justify-center text-white text-6xl">
+                        👨‍🏫
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className="border-t pt-6">
-                  <blockquote className="text-gray-700 italic text-lg leading-relaxed border-l-4 border-primary pl-4">
-                    "{pastorInfo.message}"
-                  </blockquote>
+                {/* 정보 영역 */}
+                <div className="md:col-span-3 p-8 md:p-12">
+                  <div className="mb-8">
+                    <h3 className="text-3xl font-bold text-primary mb-2">
+                      {pastorInfo.name}
+                    </h3>
+                    <p className="text-gray-600 text-lg">담임목사 / Senior Pastor</p>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="font-bold text-primary mb-3 text-lg flex items-center space-x-2">
+                        <span>📚</span>
+                        <span>학력</span>
+                      </h4>
+                      <ul className="space-y-2 ml-7">
+                        {pastorInfo.education.map((edu, index) => (
+                          <li key={index} className="flex items-start space-x-2">
+                            <span className="text-primary mt-1">•</span>
+                            <span className="text-gray-700">{edu}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {pastorInfo.career && pastorInfo.career.length > 0 && (
+                      <div>
+                        <h4 className="font-bold text-primary mb-3 text-lg flex items-center space-x-2">
+                          <span>💼</span>
+                          <span>경력</span>
+                        </h4>
+                        <ul className="space-y-2 ml-7">
+                          {pastorInfo.career.map((car, index) => (
+                            <li key={index} className="flex items-start space-x-2">
+                              <span className="text-primary mt-1">•</span>
+                              <span className="text-gray-700">{car}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    <div className="border-t pt-6">
+                      <blockquote className="text-gray-700 italic text-lg leading-relaxed border-l-4 border-primary pl-4">
+                        "{pastorInfo.message}"
+                      </blockquote>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
