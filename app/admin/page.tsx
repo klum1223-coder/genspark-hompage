@@ -39,6 +39,39 @@ interface HeroContent {
   description: string
 }
 
+interface AboutContent {
+  vision: string
+  mission: string
+  history: string[]
+  beliefs: string[]
+}
+
+interface Ministry {
+  id: string
+  title: string
+  icon: string
+  description: string
+  detailContent: string
+}
+
+interface NewsItem {
+  id: string
+  title: string
+  category: string
+  date: string
+  excerpt: string
+  content: string
+}
+
+interface PrayerRequest {
+  id: string
+  category: string
+  title: string
+  content: string
+  date: string
+  isPublic: boolean
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -79,11 +112,11 @@ export default function AdminPage() {
 
   // 팝업 배너
   const [popupData, setPopupData] = useState<PopupData>({
-    enabled: true,
-    title: '2024 신년 부흥회',
-    content: '새해를 맞이하여 은혜로운 부흥회를 개최합니다.\n\n📅 일시: 2024년 1월 15일(월) ~ 17일(수)\n⏰ 시간: 매일 저녁 7시 30분\n📍 장소: 본 교회 대예배실',
-    linkText: '자세히 보기',
-    linkUrl: '/news'
+    enabled: false,
+    title: '환영합니다',
+    content: '주성성결교회에 오신 것을 환영합니다.',
+    linkText: '더 알아보기',
+    linkUrl: '/about'
   })
 
   // 히어로 섹션 (메인 배너)
@@ -92,6 +125,76 @@ export default function AdminPage() {
     subtitle: '예수 그리스도의 복음으로 세워진',
     description: '생명과 소망이 넘치는 교회'
   })
+
+  // 교회 소개 페이지 내용
+  const [aboutContent, setAboutContent] = useState<AboutContent>({
+    vision: '우리 교회는 예수 그리스도의 복음을 전하고,\n하나님의 사랑을 실천하며, 지역사회를 섬기는\n건강한 신앙 공동체를 추구합니다.',
+    mission: '말씀 중심의 예배, 사랑의 교제, 세상을 향한 선교',
+    history: [
+      '2020년 교회 설립 및 첫 예배',
+      '2021년 청년부 및 주일학교 개설',
+      '2022년 새 예배당 입당',
+      '2023년 지역사회 봉사 시작',
+      '2024년 온라인 예배 시스템 구축'
+    ],
+    beliefs: [
+      '성경의 영감과 무오성',
+      '삼위일체 하나님',
+      '예수 그리스도의 대속과 부활',
+      '성령의 내주와 사역',
+      '교회는 그리스도의 몸',
+      '예수 그리스도의 재림'
+    ]
+  })
+
+  // 교회 사역
+  const [ministries, setMinistries] = useState<Ministry[]>([
+    {
+      id: '1',
+      title: '기도 사역',
+      icon: '🙏',
+      description: '영적 성장과 기도의 힘',
+      detailContent: '매주 정기적인 기도 모임을 통해 개인과 교회, 지역사회를 위해 기도합니다.'
+    },
+    {
+      id: '2',
+      title: '문해력 사역',
+      icon: '📖',
+      description: '성경과 말씀 이해력 향상',
+      detailContent: '성경 읽기와 이해를 돕는 프로그램을 운영하여 말씀 위에 굳게 서는 신앙인을 양육합니다.'
+    },
+    {
+      id: '3',
+      title: '글쓰기 사역',
+      icon: '✍️',
+      description: '신앙 고백과 콘텐츠 창작',
+      detailContent: '기독교 콘텐츠 생산을 위한 리더를 키우며, 글쓰기를 통한 신앙 나눔을 실천합니다.'
+    }
+  ])
+
+  // 교회 소식
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([
+    {
+      id: '1',
+      title: '주성성결교회에 오신 것을 환영합니다',
+      category: '공지',
+      date: new Date().toISOString().split('T')[0],
+      excerpt: '하나님의 사랑으로 함께하는 공동체',
+      content: '주성성결교회에 오신 것을 진심으로 환영합니다. 우리는 하나님의 말씀으로 세워지고 사랑으로 하나 되는 교회입니다.'
+    }
+  ])
+
+  // 기도 요청
+  const [prayerRequests, setPrayerRequests] = useState<PrayerRequest[]>([
+    {
+      id: '1',
+      category: '개인',
+      title: '교회를 위한 기도',
+      content: '교회가 하나님의 말씀 위에 굳게 서고, 사랑으로 하나 되기를 기도합니다.',
+      date: new Date().toISOString().split('T')[0],
+      isPublic: true
+    }
+  ])
 
   const ADMIN_PASSWORD = 'joosung2025'
 
@@ -134,6 +237,30 @@ export default function AdminPage() {
     const savedHero = localStorage.getItem('hero_content')
     if (savedHero) {
       setHeroContent(JSON.parse(savedHero))
+    }
+
+    // 교회 소개 내용 로드
+    const savedAbout = localStorage.getItem('about_content')
+    if (savedAbout) {
+      setAboutContent(JSON.parse(savedAbout))
+    }
+
+    // 교회 사역 로드
+    const savedMinistries = localStorage.getItem('ministries')
+    if (savedMinistries) {
+      setMinistries(JSON.parse(savedMinistries))
+    }
+
+    // 교회 소식 로드
+    const savedNews = localStorage.getItem('news_items')
+    if (savedNews) {
+      setNewsItems(JSON.parse(savedNews))
+    }
+
+    // 기도 요청 로드
+    const savedPrayers = localStorage.getItem('prayer_requests')
+    if (savedPrayers) {
+      setPrayerRequests(JSON.parse(savedPrayers))
     }
   }
 
@@ -186,6 +313,73 @@ export default function AdminPage() {
   const saveHeroContent = () => {
     localStorage.setItem('hero_content', JSON.stringify(heroContent))
     showSaveMessage()
+  }
+
+  const saveAboutContent = () => {
+    localStorage.setItem('about_content', JSON.stringify(aboutContent))
+    showSaveMessage()
+  }
+
+  const saveMinistries = () => {
+    localStorage.setItem('ministries', JSON.stringify(ministries))
+    showSaveMessage()
+  }
+
+  const saveNewsItems = () => {
+    localStorage.setItem('news_items', JSON.stringify(newsItems))
+    showSaveMessage()
+  }
+
+  const savePrayerRequests = () => {
+    localStorage.setItem('prayer_requests', JSON.stringify(prayerRequests))
+    showSaveMessage()
+  }
+
+  const addMinistry = () => {
+    const newMinistry: Ministry = {
+      id: Date.now().toString(),
+      title: '새 사역',
+      icon: '⭐',
+      description: '사역 설명',
+      detailContent: '상세 내용을 입력하세요'
+    }
+    setMinistries([...ministries, newMinistry])
+  }
+
+  const deleteMinistry = (id: string) => {
+    setMinistries(ministries.filter(m => m.id !== id))
+  }
+
+  const addNewsItem = () => {
+    const newNews: NewsItem = {
+      id: Date.now().toString(),
+      title: '새 소식',
+      category: '공지',
+      date: new Date().toISOString().split('T')[0],
+      excerpt: '간단한 설명',
+      content: '상세 내용을 입력하세요'
+    }
+    setNewsItems([newNews, ...newsItems])
+  }
+
+  const deleteNewsItem = (id: string) => {
+    setNewsItems(newsItems.filter(n => n.id !== id))
+  }
+
+  const addPrayerRequest = () => {
+    const newPrayer: PrayerRequest = {
+      id: Date.now().toString(),
+      category: '개인',
+      title: '새 기도 제목',
+      content: '기도 내용을 입력하세요',
+      date: new Date().toISOString().split('T')[0],
+      isPublic: true
+    }
+    setPrayerRequests([newPrayer, ...prayerRequests])
+  }
+
+  const deletePrayerRequest = (id: string) => {
+    setPrayerRequests(prayerRequests.filter(p => p.id !== id))
   }
 
   if (!isAuthenticated) {
@@ -247,7 +441,7 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-primary">관리자 페이지</h1>
+              <h1 className="text-2xl font-bold text-primary">📝 관리자 페이지</h1>
               {saveSuccess && (
                 <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full animate-fade-in">
                   ✓ 저장되었습니다!
@@ -276,18 +470,22 @@ export default function AdminPage() {
       {/* Tabs */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8 overflow-x-auto">
+          <div className="flex space-x-4 overflow-x-auto">
             {[
-              { id: 'church-info', label: '🏛️ 교회 정보' },
+              { id: 'church-info', label: '🏛️ 교회정보' },
               { id: 'pastor', label: '👨‍🏫 담임목사' },
-              { id: 'worship', label: '⛪ 예배 시간' },
-              { id: 'popup', label: '📢 팝업 배너' },
-              { id: 'hero', label: '🎨 메인 배너' }
+              { id: 'worship', label: '⛪ 예배시간' },
+              { id: 'about', label: '📖 교회소개' },
+              { id: 'ministry', label: '🎯 교회사역' },
+              { id: 'news', label: '📰 교회소식' },
+              { id: 'prayer', label: '🙏 기도요청' },
+              { id: 'popup', label: '📢 팝업배너' },
+              { id: 'hero', label: '🎨 메인배너' }
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-2 border-b-2 font-medium text-sm whitespace-nowrap ${
+                className={`py-4 px-3 border-b-2 font-medium text-sm whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'border-primary text-primary'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -397,9 +595,9 @@ export default function AdminPage() {
               <div className="flex justify-end">
                 <button
                   onClick={saveChurchInfo}
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+                  className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
                 >
-                  저장
+                  💾 저장하기
                 </button>
               </div>
             </div>
@@ -455,9 +653,9 @@ export default function AdminPage() {
               <div className="flex justify-end">
                 <button
                   onClick={savePastorInfo}
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+                  className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
                 >
-                  저장
+                  💾 저장하기
                 </button>
               </div>
             </div>
@@ -559,11 +757,434 @@ export default function AdminPage() {
               <div className="flex justify-end mt-6">
                 <button
                   onClick={saveWorshipTimes}
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+                  className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
                 >
-                  저장
+                  💾 저장하기
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* 교회 소개 페이지 */}
+        {activeTab === 'about' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-2xl font-bold text-primary mb-6">교회 소개 페이지 내용</h2>
+            
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  비전 (Vision)
+                </label>
+                <textarea
+                  value={aboutContent.vision}
+                  onChange={(e) => setAboutContent({...aboutContent, vision: e.target.value})}
+                  rows={4}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  placeholder="교회의 비전을 입력하세요"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  사명 (Mission)
+                </label>
+                <textarea
+                  value={aboutContent.mission}
+                  onChange={(e) => setAboutContent({...aboutContent, mission: e.target.value})}
+                  rows={2}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  placeholder="교회의 사명을 입력하세요"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  교회 연혁 (한 줄씩 입력)
+                </label>
+                <textarea
+                  value={aboutContent.history.join('\n')}
+                  onChange={(e) => setAboutContent({
+                    ...aboutContent,
+                    history: e.target.value.split('\n').filter(line => line.trim())
+                  })}
+                  rows={6}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  placeholder="2020년 교회 설립&#10;2021년 청년부 개설"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  우리의 믿음 (한 줄씩 입력)
+                </label>
+                <textarea
+                  value={aboutContent.beliefs.join('\n')}
+                  onChange={(e) => setAboutContent({
+                    ...aboutContent,
+                    beliefs: e.target.value.split('\n').filter(line => line.trim())
+                  })}
+                  rows={6}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  placeholder="성경의 영감과 무오성&#10;삼위일체 하나님"
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  onClick={saveAboutContent}
+                  className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
+                >
+                  💾 저장하기
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 교회 사역 */}
+        {activeTab === 'ministry' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-primary">교회 사역 관리</h2>
+              <button
+                onClick={addMinistry}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                ➕ 사역 추가
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {ministries.map((ministry, index) => (
+                <div key={ministry.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        사역 제목
+                      </label>
+                      <input
+                        type="text"
+                        value={ministry.title}
+                        onChange={(e) => {
+                          const updated = [...ministries]
+                          updated[index].title = e.target.value
+                          setMinistries(updated)
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        아이콘 (이모지)
+                      </label>
+                      <input
+                        type="text"
+                        value={ministry.icon}
+                        onChange={(e) => {
+                          const updated = [...ministries]
+                          updated[index].icon = e.target.value
+                          setMinistries(updated)
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        placeholder="🙏"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        간단한 설명
+                      </label>
+                      <input
+                        type="text"
+                        value={ministry.description}
+                        onChange={(e) => {
+                          const updated = [...ministries]
+                          updated[index].description = e.target.value
+                          setMinistries(updated)
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        상세 내용
+                      </label>
+                      <textarea
+                        value={ministry.detailContent}
+                        onChange={(e) => {
+                          const updated = [...ministries]
+                          updated[index].detailContent = e.target.value
+                          setMinistries(updated)
+                        }}
+                        rows={3}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={() => deleteMinistry(ministry.id)}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                    >
+                      🗑️ 삭제
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={saveMinistries}
+                className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
+              >
+                💾 저장하기
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 교회 소식 */}
+        {activeTab === 'news' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-primary">교회 소식 관리</h2>
+              <button
+                onClick={addNewsItem}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                ➕ 소식 추가
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {newsItems.map((news, index) => (
+                <div key={news.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        제목
+                      </label>
+                      <input
+                        type="text"
+                        value={news.title}
+                        onChange={(e) => {
+                          const updated = [...newsItems]
+                          updated[index].title = e.target.value
+                          setNewsItems(updated)
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          카테고리
+                        </label>
+                        <select
+                          value={news.category}
+                          onChange={(e) => {
+                            const updated = [...newsItems]
+                            updated[index].category = e.target.value
+                            setNewsItems(updated)
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        >
+                          <option value="공지">공지</option>
+                          <option value="행사">행사</option>
+                          <option value="예배">예배</option>
+                          <option value="모집">모집</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          날짜
+                        </label>
+                        <input
+                          type="date"
+                          value={news.date}
+                          onChange={(e) => {
+                            const updated = [...newsItems]
+                            updated[index].date = e.target.value
+                            setNewsItems(updated)
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        간단한 설명
+                      </label>
+                      <input
+                        type="text"
+                        value={news.excerpt}
+                        onChange={(e) => {
+                          const updated = [...newsItems]
+                          updated[index].excerpt = e.target.value
+                          setNewsItems(updated)
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        상세 내용
+                      </label>
+                      <textarea
+                        value={news.content}
+                        onChange={(e) => {
+                          const updated = [...newsItems]
+                          updated[index].content = e.target.value
+                          setNewsItems(updated)
+                        }}
+                        rows={4}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={() => deleteNewsItem(news.id)}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                    >
+                      🗑️ 삭제
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={saveNewsItems}
+                className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
+              >
+                💾 저장하기
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 기도 요청 */}
+        {activeTab === 'prayer' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-primary">기도 요청 관리</h2>
+              <button
+                onClick={addPrayerRequest}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                ➕ 기도 제목 추가
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {prayerRequests.map((prayer, index) => (
+                <div key={prayer.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        제목
+                      </label>
+                      <input
+                        type="text"
+                        value={prayer.title}
+                        onChange={(e) => {
+                          const updated = [...prayerRequests]
+                          updated[index].title = e.target.value
+                          setPrayerRequests(updated)
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          카테고리
+                        </label>
+                        <select
+                          value={prayer.category}
+                          onChange={(e) => {
+                            const updated = [...prayerRequests]
+                            updated[index].category = e.target.value
+                            setPrayerRequests(updated)
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        >
+                          <option value="개인">개인</option>
+                          <option value="교회">교회</option>
+                          <option value="선교">선교</option>
+                          <option value="가정">가정</option>
+                          <option value="건강">건강</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          날짜
+                        </label>
+                        <input
+                          type="date"
+                          value={prayer.date}
+                          onChange={(e) => {
+                            const updated = [...prayerRequests]
+                            updated[index].date = e.target.value
+                            setPrayerRequests(updated)
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        기도 내용
+                      </label>
+                      <textarea
+                        value={prayer.content}
+                        onChange={(e) => {
+                          const updated = [...prayerRequests]
+                          updated[index].content = e.target.value
+                          setPrayerRequests(updated)
+                        }}
+                        rows={4}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={prayer.isPublic}
+                          onChange={(e) => {
+                            const updated = [...prayerRequests]
+                            updated[index].isPublic = e.target.checked
+                            setPrayerRequests(updated)
+                          }}
+                          className="w-4 h-4"
+                        />
+                        <span className="text-sm text-gray-700">공개 (체크하면 홈페이지에 표시됩니다)</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={() => deletePrayerRequest(prayer.id)}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                    >
+                      🗑️ 삭제
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={savePrayerRequests}
+                className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
+              >
+                💾 저장하기
+              </button>
             </div>
           </div>
         )}
@@ -574,7 +1195,7 @@ export default function AdminPage() {
             <h2 className="text-2xl font-bold text-primary mb-6">팝업 배너 관리</h2>
             
             <div className="space-y-6">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg">
                 <input
                   type="checkbox"
                   id="popup-enabled"
@@ -583,7 +1204,7 @@ export default function AdminPage() {
                   className="w-5 h-5 text-primary rounded"
                 />
                 <label htmlFor="popup-enabled" className="text-sm font-medium text-gray-700">
-                  팝업 활성화 (체크하면 홈페이지 시작 시 팝업이 표시됩니다)
+                  ✅ 팝업 활성화 (체크하면 홈페이지 시작 시 팝업이 표시됩니다)
                 </label>
               </div>
 
@@ -645,15 +1266,15 @@ export default function AdminPage() {
               <div className="flex justify-end">
                 <button
                   onClick={savePopupData}
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+                  className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
                 >
-                  저장
+                  💾 저장하기
                 </button>
               </div>
 
               {/* 미리보기 */}
               <div className="mt-8 p-6 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">미리보기</h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-4">👀 미리보기</h3>
                 <div className="bg-white rounded-lg p-6 shadow-lg max-w-md mx-auto">
                   <h2 className="text-2xl font-bold text-primary mb-4">{popupData.title}</h2>
                   <div className="text-gray-700 whitespace-pre-line mb-6">{popupData.content}</div>
@@ -717,9 +1338,9 @@ export default function AdminPage() {
               <div className="flex justify-end">
                 <button
                   onClick={saveHeroContent}
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+                  className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
                 >
-                  저장
+                  💾 저장하기
                 </button>
               </div>
 
@@ -743,10 +1364,11 @@ export default function AdminPage() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h3 className="text-lg font-bold text-blue-900 mb-2">💡 사용 안내</h3>
           <ul className="text-sm text-blue-800 space-y-2">
-            <li>• 각 탭에서 정보를 수정하고 <strong>저장 버튼</strong>을 클릭하세요</li>
-            <li>• 저장된 정보는 홈페이지에 <strong>즉시 반영</strong>됩니다</li>
-            <li>• 팝업 배너는 체크박스로 활성화/비활성화할 수 있습니다</li>
-            <li>• 브라우저를 새로고침하면 변경사항을 확인할 수 있습니다</li>
+            <li>• <strong>9개의 탭</strong>에서 홈페이지의 모든 내용을 수정할 수 있습니다</li>
+            <li>• 각 항목을 수정한 후 반드시 <strong>💾 저장하기 버튼</strong>을 클릭하세요</li>
+            <li>• 저장하면 홈페이지에 <strong>즉시 반영</strong>됩니다 (새로고침 필요)</li>
+            <li>• 교회 소식, 사역, 기도 요청은 <strong>추가/수정/삭제</strong>가 모두 가능합니다</li>
+            <li>• 모든 데이터는 브라우저에 저장되므로 <strong>정기적으로 백업</strong>하세요</li>
           </ul>
         </div>
       </div>

@@ -1,222 +1,185 @@
-export const metadata = {
-  title: '교회 소식 | 교회 이름',
-  description: '교회의 최신 소식과 공지사항입니다',
+'use client'
+
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+
+interface NewsItem {
+  id: string
+  title: string
+  category: string
+  date: string
+  excerpt: string
+  content: string
 }
 
 export default function NewsPage() {
-  // 임시 뉴스 데이터
-  const news = [
-    {
-      id: 1,
-      category: '공지',
-      title: '2024년 신년 부흥회 안내',
-      excerpt: '새해를 맞이하여 부흥회를 개최합니다. 많은 참여 부탁드립니다.',
-      date: '2024.01.02',
-      author: '관리자',
-      views: 245,
-    },
-    {
-      id: 2,
-      category: '행사',
-      title: '겨울 성경학교 등록 안내',
-      excerpt: '초등부 겨울 성경학교 등록이 시작되었습니다.',
-      date: '2023.12.28',
-      author: '교육부',
-      views: 189,
-    },
-    {
-      id: 3,
-      category: '소식',
-      title: '성탄절 축하 행사 후기',
-      excerpt: '감동적이었던 성탄절 행사의 사진과 후기를 공유합니다.',
-      date: '2023.12.26',
-      author: '관리자',
-      views: 312,
-    },
-    {
-      id: 4,
-      category: '공지',
-      title: '주차장 이용 안내',
-      excerpt: '주차장 공사로 인한 임시 주차 안내 사항입니다.',
-      date: '2023.12.20',
-      author: '관리부',
-      views: 156,
-    },
-    {
-      id: 5,
-      category: '행사',
-      title: '청년부 수련회 참가 신청',
-      excerpt: '2024년 첫 청년부 수련회 참가자를 모집합니다.',
-      date: '2023.12.15',
-      author: '청년부',
-      views: 201,
-    },
-    {
-      id: 6,
-      category: '소식',
-      title: '해외 선교 사역 보고',
-      excerpt: '필리핀 선교 사역의 귀한 열매들을 보고드립니다.',
-      date: '2023.12.10',
-      author: '선교부',
-      views: 178,
-    },
-  ]
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string>('전체')
+  const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null)
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case '공지':
-        return 'bg-red-100 text-red-700'
-      case '행사':
-        return 'bg-blue-100 text-blue-700'
-      case '소식':
-        return 'bg-green-100 text-green-700'
-      default:
-        return 'bg-gray-100 text-gray-700'
+  useEffect(() => {
+    // localStorage에서 데이터 로드
+    const loadData = () => {
+      const savedNews = localStorage.getItem('news_items')
+      if (savedNews) {
+        setNewsItems(JSON.parse(savedNews))
+      }
     }
-  }
+
+    loadData()
+  }, [])
+
+  const categories = ['전체', ...Array.from(new Set(newsItems.map(n => n.category)))]
+  
+  const filteredNews = selectedCategory === '전체' 
+    ? newsItems 
+    : newsItems.filter(n => n.category === selectedCategory)
 
   return (
     <div className="pt-20">
       {/* Page Header */}
-      <section className="bg-beige py-16">
+      <section className="bg-primary text-white py-16">
         <div className="container-custom text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
             교회 소식
           </h1>
-          <p className="text-lg text-gray-600">
-            교회의 최신 소식과 공지사항을 전해드립니다
+          <p className="text-lg text-gray-200">
+            주성성결교회의 소식과 공지사항을 전합니다
           </p>
         </div>
       </section>
 
-      {/* Category Filter */}
-      <section className="py-8 bg-white border-b">
+      <section className="section-padding bg-white">
         <div className="container-custom">
-          <div className="flex flex-wrap gap-3 justify-center">
-            <button className="px-6 py-2 bg-primary text-white rounded-full text-sm font-medium">
-              전체
-            </button>
-            <button className="px-6 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200">
-              공지사항
-            </button>
-            <button className="px-6 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200">
-              행사안내
-            </button>
-            <button className="px-6 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200">
-              교회소식
-            </button>
+          {/* Category Filter */}
+          <div className="flex flex-wrap gap-2 mb-8">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  selectedCategory === category
+                    ? 'bg-primary text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
           </div>
-        </div>
-      </section>
 
-      {/* News List */}
-      <section className="section-padding">
-        <div className="container-custom">
-          <div className="max-w-5xl mx-auto">
-            {/* Featured News */}
-            <article className="card overflow-hidden mb-8">
-              <div className="grid grid-cols-1 md:grid-cols-2">
-                <div className="h-64 md:h-auto bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white">
-                  <div className="text-center">
-                    <div className="text-6xl mb-4">📢</div>
-                    <p className="text-sm font-medium">주요 공지</p>
-                  </div>
-                </div>
-                <div className="p-8 flex flex-col justify-center">
-                  <span className="inline-block px-3 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full mb-3 w-fit">
-                    중요 공지
-                  </span>
-                  <h2 className="text-2xl md:text-3xl font-bold text-primary mb-4">
-                    2024년 신년 부흥회 안내
-                  </h2>
-                  <p className="text-gray-600 mb-4 leading-relaxed">
-                    새해를 맞이하여 부흥회를 개최합니다. 
-                    김은혜 목사님을 강사로 모시고 3일간 진행되는 
-                    이번 부흥회에 많은 참여 부탁드립니다.
-                  </p>
-                  <div className="flex items-center text-sm text-gray-500 space-x-4">
-                    <span>📅 2024.01.02</span>
-                    <span>👁️ 245</span>
-                  </div>
-                </div>
-              </div>
-            </article>
-
-            {/* News Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {news.slice(1).map((item) => (
-                <article key={item.id} className="card overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer">
-                  {/* Image Placeholder */}
-                  <div className="h-48 bg-gradient-to-br from-beige to-beige-dark flex items-center justify-center text-primary">
-                    <div className="text-5xl">📰</div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-6">
-                    <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full mb-3 ${getCategoryColor(item.category)}`}>
-                      {item.category}
-                    </span>
-                    
-                    <h3 className="text-lg font-bold text-primary mb-2 line-clamp-2 hover:text-primary-light transition-colors">
-                      {item.title}
-                    </h3>
-                    
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                      {item.excerpt}
-                    </p>
-
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <div className="flex items-center space-x-3">
-                        <span>📅 {item.date}</span>
-                        <span>👤 {item.author}</span>
-                      </div>
-                      <span>👁️ {item.views}</span>
+          {/* News List */}
+          {filteredNews.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6">
+              {filteredNews.map((news) => (
+                <article 
+                  key={news.id} 
+                  className="card p-6 hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => setSelectedNews(news)}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        news.category === '공지' ? 'bg-red-100 text-red-700' :
+                        news.category === '행사' ? 'bg-blue-100 text-blue-700' :
+                        news.category === '예배' ? 'bg-green-100 text-green-700' :
+                        'bg-gray-100 text-gray-700'
+                      }`}>
+                        {news.category}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {new Date(news.date).toLocaleDateString('ko-KR')}
+                      </span>
                     </div>
                   </div>
+                  
+                  <h2 className="text-2xl font-bold text-primary mb-3 hover:text-primary-light transition-colors">
+                    {news.title}
+                  </h2>
+                  
+                  <p className="text-gray-600 leading-relaxed mb-4">
+                    {news.excerpt}
+                  </p>
+                  
+                  <button className="text-primary hover:text-primary-light font-medium text-sm flex items-center space-x-1">
+                    <span>자세히 보기</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
                 </article>
               ))}
             </div>
+          ) : (
+            <div className="text-center py-20">
+              <div className="text-6xl mb-4">📰</div>
+              <h3 className="text-2xl font-bold text-gray-700 mb-2">
+                등록된 소식이 없습니다
+              </h3>
+              <p className="text-gray-500 mb-6">
+                관리자 페이지에서 교회 소식을 추가해주세요
+              </p>
+              <Link href="/admin" className="btn-primary">
+                관리자 페이지로 이동
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
 
-            {/* Pagination */}
-            <div className="flex justify-center items-center space-x-2 mt-12">
-              <button className="px-3 py-2 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
-                이전
+      {/* News Detail Modal */}
+      {selectedNews && (
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+          onClick={() => setSelectedNews(null)}
+        >
+          <div 
+            className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  selectedNews.category === '공지' ? 'bg-red-100 text-red-700' :
+                  selectedNews.category === '행사' ? 'bg-blue-100 text-blue-700' :
+                  selectedNews.category === '예배' ? 'bg-green-100 text-green-700' :
+                  'bg-gray-100 text-gray-700'
+                }`}>
+                  {selectedNews.category}
+                </span>
+                <span className="text-sm text-gray-500">
+                  {new Date(selectedNews.date).toLocaleDateString('ko-KR')}
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedNews(null)}
+                className="text-gray-400 hover:text-gray-600 text-2xl"
+              >
+                ×
               </button>
-              <button className="px-4 py-2 rounded-md bg-primary text-white">1</button>
-              <button className="px-4 py-2 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">2</button>
-              <button className="px-4 py-2 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">3</button>
-              <button className="px-3 py-2 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200">
-                다음
+            </div>
+            
+            <h2 className="text-3xl font-bold text-primary mb-6">
+              {selectedNews.title}
+            </h2>
+            
+            <div className="prose max-w-none">
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                {selectedNews.content}
+              </p>
+            </div>
+            
+            <div className="mt-8 pt-6 border-t">
+              <button
+                onClick={() => setSelectedNews(null)}
+                className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
+              >
+                닫기
               </button>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Newsletter Section */}
-      <section className="section-padding bg-beige">
-        <div className="container-custom">
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="text-5xl mb-4">📧</div>
-            <h2 className="text-2xl md:text-3xl font-bold text-primary mb-4">
-              교회 소식 받기
-            </h2>
-            <p className="text-gray-700 mb-6">
-              교회의 최신 소식과 공지사항을 이메일로 받아보세요
-            </p>
-            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="이메일 주소를 입력하세요"
-                className="flex-1 px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <button type="submit" className="btn-primary whitespace-nowrap">
-                구독하기
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
+      )}
     </div>
   )
 }

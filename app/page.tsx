@@ -1,49 +1,101 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Hero from '@/components/shared/Hero'
 import PopupModal from '@/components/ui/PopupModal'
-// import { sanityFetch } from '@/lib/sanity/client'
-// import { RECENT_SERMONS_QUERY, RECENT_NEWS_QUERY, RECENT_ALBUMS_QUERY } from '@/lib/sanity/queries'
-// import { SanitySermon, SanityNews, SanityAlbum } from '@/types/sanity'
 
-// ISR: 매 60초마다 재검증
-// export const revalidate = 60
+interface Ministry {
+  id: string
+  title: string
+  icon: string
+  description: string
+  detailContent: string
+}
+
+interface NewsItem {
+  id: string
+  title: string
+  category: string
+  date: string
+  excerpt: string
+  content: string
+}
+
+interface WorshipTime {
+  name: string
+  time: string
+  description: string
+}
+
+interface ChurchInfo {
+  name: string
+  englishName: string
+  phone: string
+  fax: string
+  email: string
+  address: string
+  addressDetail: string
+}
 
 export default function Home() {
-  // Sanity 데이터 페칭 임시 비활성화 (메모리 이슈로 인해)
+  const [ministries, setMinistries] = useState<Ministry[]>([
+    { id: '1', title: '기도 사역', icon: '🙏', description: '영적 성장과 기도의 힘', detailContent: '' },
+    { id: '2', title: '문해력 사역', icon: '📖', description: '성경과 말씀 이해력 향상', detailContent: '' },
+    { id: '3', title: '글쓰기 사역', icon: '✍️', description: '신앙 고백과 콘텐츠 창작', detailContent: '' },
+  ])
+  
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([])
+  const [churchInfo, setChurchInfo] = useState<ChurchInfo>({
+    name: '주성성결교회',
+    englishName: 'Joosung Holiness Church',
+    phone: '010-8986-3965',
+    fax: '02-1234-5679',
+    email: 'klum3@naver.com',
+    address: '충북 청주시 흥덕구 봉명로219번길 24',
+    addressDetail: '2층'
+  })
+  
+  const [sundayWorship, setSundayWorship] = useState<WorshipTime[]>([
+    { name: '주일 예배', time: '오전 10:45', description: '주일 메인 예배' },
+    { name: '성장이 있는 소모임', time: '오후 1:00', description: '소그룹 모임' }
+  ])
+  
+  const [weekdayWorship, setWeekdayWorship] = useState<WorshipTime[]>([
+    { name: '새벽 예배', time: '오전 06:30', description: '하루를 주님께 드리는 시간' }
+  ])
+
+  useEffect(() => {
+    // localStorage에서 데이터 로드
+    const loadData = () => {
+      const savedMinistries = localStorage.getItem('ministries')
+      if (savedMinistries) {
+        setMinistries(JSON.parse(savedMinistries))
+      }
+
+      const savedNews = localStorage.getItem('news_items')
+      if (savedNews) {
+        setNewsItems(JSON.parse(savedNews))
+      }
+
+      const savedChurchInfo = localStorage.getItem('church_info')
+      if (savedChurchInfo) {
+        setChurchInfo(JSON.parse(savedChurchInfo))
+      }
+
+      const savedWorshipTimes = localStorage.getItem('worship_times')
+      if (savedWorshipTimes) {
+        const times = JSON.parse(savedWorshipTimes)
+        if (times.sunday) setSundayWorship(times.sunday)
+        if (times.weekday) setWeekdayWorship(times.weekday)
+      }
+    }
+
+    loadData()
+  }, [])
+
   const recentSermons: any[] = []
-  const recentNews: any[] = []
   const recentAlbums: any[] = []
-
-  // try {
-  //   recentSermons = await sanityFetch<SanitySermon[]>({
-  //     query: RECENT_SERMONS_QUERY,
-  //   })
-  // } catch (error) {
-  //   console.error('최근 설교 데이터 가져오기 실패:', error)
-  // }
-
-  // try {
-  //   recentNews = await sanityFetch<SanityNews[]>({
-  //     query: RECENT_NEWS_QUERY,
-  //   })
-  // } catch (error) {
-  //   console.error('최근 소식 데이터 가져오기 실패:', error)
-  // }
-
-  // try {
-  //   recentAlbums = await sanityFetch<SanityAlbum[]>({
-  //     query: RECENT_ALBUMS_QUERY,
-  //   })
-  // } catch (error) {
-  //   console.error('최근 앨범 데이터 가져오기 실패:', error)
-  // }
-
-  // 교회 사역 데이터
-  const ministries = [
-    { id: 1, title: '기도 사역', icon: '🙏', description: '영적 성장과 기도의 힘', link: '/ministry' },
-    { id: 2, title: '문해력 사역', icon: '📖', description: '성경과 말씀 이해력 향상', link: '/ministry' },
-    { id: 3, title: '글쓰기 사역', icon: '✍️', description: '신앙 고백과 콘텐츠 창작', link: '/ministry' },
-  ]
 
   return (
     <>
@@ -64,32 +116,34 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* 주일 예배 */}
-            <div className="card p-8 text-center hover:scale-105 transition-transform duration-300">
-              <div className="text-5xl mb-4">⛪</div>
-              <h3 className="text-xl font-bold text-primary mb-4">주일 예배</h3>
-              <div className="space-y-2 text-gray-600">
-                <p className="font-medium">오전 10:45</p>
+            {sundayWorship.map((worship, index) => (
+              <div key={index} className="card p-8 text-center hover:scale-105 transition-transform duration-300">
+                <div className="text-5xl mb-4">
+                  {index === 0 ? '⛪' : '👥'}
+                </div>
+                <h3 className="text-xl font-bold text-primary mb-4">{worship.name}</h3>
+                <div className="space-y-2 text-gray-600">
+                  <p className="font-medium">{worship.time}</p>
+                  {worship.description && (
+                    <p className="text-sm text-gray-500 mt-4">{worship.description}</p>
+                  )}
+                </div>
               </div>
-            </div>
-
-            {/* 소모임 */}
-            <div className="card p-8 text-center hover:scale-105 transition-transform duration-300">
-              <div className="text-5xl mb-4">👥</div>
-              <h3 className="text-xl font-bold text-primary mb-4">성장이 있는 소모임</h3>
-              <div className="space-y-2 text-gray-600">
-                <p className="font-medium">오후 1:00</p>
-              </div>
-            </div>
+            ))}
 
             {/* 새벽 예배 */}
-            <div className="card p-8 text-center hover:scale-105 transition-transform duration-300 md:col-span-2">
-              <div className="text-5xl mb-4">🌅</div>
-              <h3 className="text-xl font-bold text-primary mb-4">새벽 예배</h3>
-              <div className="space-y-2 text-gray-600">
-                <p className="font-medium">오전 06:30</p>
-                <p className="text-sm text-gray-500 mt-4">하루를 주님께 드리는 시간</p>
+            {weekdayWorship.map((worship, index) => (
+              <div key={`weekday-${index}`} className="card p-8 text-center hover:scale-105 transition-transform duration-300 md:col-span-2">
+                <div className="text-5xl mb-4">🌅</div>
+                <h3 className="text-xl font-bold text-primary mb-4">{worship.name}</h3>
+                <div className="space-y-2 text-gray-600">
+                  <p className="font-medium">{worship.time}</p>
+                  {worship.description && (
+                    <p className="text-sm text-gray-500 mt-4">{worship.description}</p>
+                  )}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -145,7 +199,7 @@ export default function Home() {
           ) : (
             <div className="text-center py-12 text-gray-500">
               <p className="text-lg">설교 데이터가 없습니다.</p>
-              <p className="text-sm mt-2">Sanity Studio에서 설교를 추가해주세요.</p>
+              <p className="text-sm mt-2">관리자 페이지에서 설교를 추가해주세요.</p>
             </div>
           )}
 
@@ -179,10 +233,10 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {ministries.map((ministry) => (
+            {ministries.slice(0, 3).map((ministry) => (
               <Link 
                 key={ministry.id}
-                href={ministry.link}
+                href="/ministry"
                 className="card p-8 text-center hover:scale-105 hover:shadow-xl transition-all duration-300 group"
               >
                 <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -252,7 +306,7 @@ export default function Home() {
           ) : (
             <div className="text-center py-12 text-gray-500">
               <p className="text-lg">앨범 데이터가 없습니다.</p>
-              <p className="text-sm mt-2">Sanity Studio에서 앨범을 추가해주세요.</p>
+              <p className="text-sm mt-2">관리자 페이지에서 앨범을 추가해주세요.</p>
             </div>
           )}
 
@@ -285,10 +339,10 @@ export default function Home() {
             </Link>
           </div>
 
-          {recentNews.length > 0 ? (
+          {newsItems.filter(n => n.isPublic !== false).length > 0 ? (
             <div className="space-y-4">
-              {recentNews.map((news) => (
-                <Link href={`/news/${news._id}`} key={news._id}>
+              {newsItems.filter(n => n.isPublic !== false).slice(0, 3).map((news) => (
+                <Link href={`/news`} key={news.id}>
                   <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 hover:bg-white/20 transition-colors cursor-pointer group">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -325,7 +379,7 @@ export default function Home() {
           ) : (
             <div className="text-center py-12 text-white/70">
               <p className="text-lg">공지사항이 없습니다.</p>
-              <p className="text-sm mt-2">Sanity Studio에서 공지사항을 추가해주세요.</p>
+              <p className="text-sm mt-2">관리자 페이지에서 공지사항을 추가해주세요.</p>
             </div>
           )}
 
@@ -362,21 +416,21 @@ export default function Home() {
                 <div className="text-2xl">📍</div>
                 <div>
                   <h4 className="font-bold text-primary mb-1">주소</h4>
-                  <p className="text-sm text-gray-600">충북 청주시 흥덕구 봉명로219번길 24, 2층</p>
+                  <p className="text-sm text-gray-600">{churchInfo.address}, {churchInfo.addressDetail}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <div className="text-2xl">📞</div>
                 <div>
                   <h4 className="font-bold text-primary mb-1">전화</h4>
-                  <p className="text-sm text-gray-600">010-8986-3965</p>
+                  <p className="text-sm text-gray-600">{churchInfo.phone}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <div className="text-2xl">✉️</div>
                 <div>
                   <h4 className="font-bold text-primary mb-1">이메일</h4>
-                  <p className="text-sm text-gray-600">klum3@naver.com</p>
+                  <p className="text-sm text-gray-600">{churchInfo.email}</p>
                 </div>
               </div>
             </div>
