@@ -139,7 +139,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* 주일 예배 */}
-            {sundayWorship.map((worship, index) => (
+            {sundayWorship.filter(worship => worship.time && worship.time.trim() !== '').map((worship, index) => (
               <div key={index} className="card p-6 text-center hover:scale-105 transition-transform duration-300">
                 <div className="text-4xl mb-3">
                   {index === 0 ? '⛪' : '👥'}
@@ -150,7 +150,7 @@ export default function Home() {
             ))}
 
             {/* 새벽 예배 */}
-            {weekdayWorship.map((worship, index) => (
+            {weekdayWorship.filter(worship => worship.time && worship.time.trim() !== '').map((worship, index) => (
               <div key={`weekday-${index}`} className="card p-6 text-center hover:scale-105 transition-transform duration-300">
                 <div className="text-4xl mb-3">
                   {worship.name.includes('새벽') ? '🌅' : '🕯️'}
