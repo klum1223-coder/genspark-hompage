@@ -38,12 +38,11 @@ export default function Home() {
   //   console.error('최근 앨범 데이터 가져오기 실패:', error)
   // }
 
-  // 임시 사역 데이터 (나중에 CMS로 이관 가능)
+  // 교회 사역 데이터
   const ministries = [
-    { id: 1, title: '주일학교', icon: '👶', description: '영유아부터 고등부까지', link: '/ministry' },
-    { id: 2, title: '청년부', icon: '🙋', description: '대학생과 청년들의 공동체', link: '/ministry' },
-    { id: 3, title: '찬양 사역', icon: '🎵', description: '하나님을 찬양하는 음악 사역', link: '/ministry' },
-    { id: 4, title: '선교 사역', icon: '🌍', description: '국내외 선교와 지역 봉사', link: '/ministry' },
+    { id: 1, title: '기도 사역', icon: '🙏', description: '영적 성장과 기도의 힘', link: '/ministry' },
+    { id: 2, title: '문해력 사역', icon: '📖', description: '성경과 말씀 이해력 향상', link: '/ministry' },
+    { id: 3, title: '글쓰기 사역', icon: '✍️', description: '신앙 고백과 콘텐츠 창작', link: '/ministry' },
   ]
 
   return (
@@ -63,36 +62,31 @@ export default function Home() {
             <div className="w-20 h-1 bg-primary mx-auto"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* 주일 예배 */}
             <div className="card p-8 text-center hover:scale-105 transition-transform duration-300">
               <div className="text-5xl mb-4">⛪</div>
               <h3 className="text-xl font-bold text-primary mb-4">주일 예배</h3>
               <div className="space-y-2 text-gray-600">
-                <p className="font-medium">1부 예배: 오전 09:00</p>
-                <p className="font-medium">2부 예배: 오전 11:00</p>
-                <p className="font-medium">찬양예배: 오후 14:00</p>
+                <p className="font-medium">오전 10:45</p>
               </div>
             </div>
 
-            {/* 수요 예배 */}
+            {/* 소모임 */}
             <div className="card p-8 text-center hover:scale-105 transition-transform duration-300">
-              <div className="text-5xl mb-4">🙏</div>
-              <h3 className="text-xl font-bold text-primary mb-4">수요 예배</h3>
+              <div className="text-5xl mb-4">👥</div>
+              <h3 className="text-xl font-bold text-primary mb-4">성장이 있는 소모임</h3>
               <div className="space-y-2 text-gray-600">
-                <p className="font-medium">매주 수요일</p>
-                <p className="font-medium">오후 07:30</p>
-                <p className="text-sm text-gray-500 mt-4">말씀과 기도로 함께하는 시간</p>
+                <p className="font-medium">오후 1:00</p>
               </div>
             </div>
 
-            {/* 새벽 기도회 */}
-            <div className="card p-8 text-center hover:scale-105 transition-transform duration-300">
+            {/* 새벽 예배 */}
+            <div className="card p-8 text-center hover:scale-105 transition-transform duration-300 md:col-span-2">
               <div className="text-5xl mb-4">🌅</div>
-              <h3 className="text-xl font-bold text-primary mb-4">새벽 기도회</h3>
+              <h3 className="text-xl font-bold text-primary mb-4">새벽 예배</h3>
               <div className="space-y-2 text-gray-600">
-                <p className="font-medium">매일 새벽</p>
-                <p className="font-medium">오전 05:30</p>
+                <p className="font-medium">오전 06:30</p>
                 <p className="text-sm text-gray-500 mt-4">하루를 주님께 드리는 시간</p>
               </div>
             </div>
@@ -171,7 +165,7 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-bold text-primary mb-2">
                 교회 사역
               </h2>
-              <p className="text-gray-600">다양한 사역으로 섬깁니다</p>
+              <p className="text-gray-600">우리는 기독교 콘텐츠 생산을 하는 리더를 키웁니다</p>
             </div>
             <Link 
               href="/ministry"
@@ -184,7 +178,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {ministries.map((ministry) => (
               <Link 
                 key={ministry.id}
@@ -368,14 +362,14 @@ export default function Home() {
                 <div className="text-2xl">📍</div>
                 <div>
                   <h4 className="font-bold text-primary mb-1">주소</h4>
-                  <p className="text-sm text-gray-600">서울시 강남구 테헤란로 123</p>
+                  <p className="text-sm text-gray-600">충북 청주시 흥덕구 봉명로219번길 24, 2층</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <div className="text-2xl">📞</div>
                 <div>
                   <h4 className="font-bold text-primary mb-1">전화</h4>
-                  <p className="text-sm text-gray-600">02-1234-5678</p>
+                  <p className="text-sm text-gray-600">010-8986-3965</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">

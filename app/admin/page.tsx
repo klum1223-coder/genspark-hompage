@@ -50,11 +50,11 @@ export default function AdminPage() {
   const [churchInfo, setChurchInfo] = useState<ChurchInfo>({
     name: '주성성결교회',
     englishName: 'Joosung Holiness Church',
-    phone: '02-1234-5678',
+    phone: '010-8986-3965',
     fax: '02-1234-5679',
     email: 'klum3@naver.com',
-    address: '서울시 강남구 테헤란로 123',
-    addressDetail: '주성빌딩 2층'
+    address: '충북 청주시 흥덕구 봉명로219번길 24',
+    addressDetail: '2층'
   })
 
   // 담임목사 정보
@@ -69,15 +69,12 @@ export default function AdminPage() {
 
   // 예배 시간
   const [sundayWorship, setSundayWorship] = useState<WorshipTime[]>([
-    { name: '1부 예배', time: '오전 09:00', description: '장년 예배' },
-    { name: '2부 예배', time: '오전 11:00', description: '대예배' },
-    { name: '찬양예배', time: '오후 14:00', description: '청년 찬양 예배' }
+    { name: '주일 예배', time: '오전 10:45', description: '주일 메인 예배' },
+    { name: '성장이 있는 소모임', time: '오후 1:00', description: '소그룹 모임' }
   ])
 
   const [weekdayWorship, setWeekdayWorship] = useState<WorshipTime[]>([
-    { name: '수요 예배', time: '매주 수요일 오후 07:30', description: '말씀과 기도로 함께하는 시간' },
-    { name: '새벽 기도회', time: '매일 새벽 오전 05:30', description: '하루를 주님께 드리는 시간' },
-    { name: '금요 기도회', time: '매주 금요일 오후 07:30', description: '성령 충만의 시간' }
+    { name: '새벽 예배', time: '오전 06:30', description: '하루를 주님께 드리는 시간' }
   ])
 
   // 팝업 배너

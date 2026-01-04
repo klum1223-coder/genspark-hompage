@@ -68,7 +68,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg text-primary mb-1">주소</h3>
-                    <p className="text-gray-700">서울시 강남구 테헤란로 123</p>
+                    <p className="text-gray-700">충북 청주시 흥덕구 봉명로219번길 24, 2층</p>
                     <p className="text-sm text-gray-500 mt-1">(우편번호: 06234)</p>
                   </div>
                 </div>
@@ -80,7 +80,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg text-primary mb-1">전화번호</h3>
-                    <p className="text-gray-700">02-1234-5678</p>
+                    <p className="text-gray-700">010-8986-3965</p>
                     <p className="text-sm text-gray-500 mt-1">평일 09:00 - 18:00</p>
                   </div>
                 </div>

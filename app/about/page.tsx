@@ -182,14 +182,14 @@ export default function AboutPage() {
                   <div className="text-2xl">📍</div>
                   <div>
                     <h4 className="font-bold text-primary mb-1">주소</h4>
-                    <p className="text-gray-700">서울시 강남구 테헤란로 123</p>
+                    <p className="text-gray-700">충북 청주시 흥덕구 봉명로219번길 24, 2층</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <div className="text-2xl">📞</div>
                   <div>
                     <h4 className="font-bold text-primary mb-1">전화</h4>
-                    <p className="text-gray-700">02-1234-5678</p>
+                    <p className="text-gray-700">010-8986-3965</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">

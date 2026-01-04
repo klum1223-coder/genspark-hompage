@@ -7,19 +7,17 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
   const [churchInfo, setChurchInfo] = useState({
     name: '주성성결교회',
-    phone: '02-1234-5678',
+    phone: '010-8986-3965',
     email: 'klum3@naver.com',
-    address: '서울시 강남구 테헤란로 123',
+    address: '충북 청주시 흥덕구 봉명로219번길 24, 2층',
   })
   const [worshipTimes, setWorshipTimes] = useState({
     sunday: [
-      { name: '1부 예배', time: '오전 09:00' },
-      { name: '2부 예배', time: '오전 11:00' },
-      { name: '찬양예배', time: '오후 14:00' },
+      { name: '주일 예배', time: '오전 10:45' },
+      { name: '소모임', time: '오후 1:00' },
     ],
     weekday: [
-      { name: '수요예배', time: '오후 07:30' },
-      { name: '금요기도', time: '오후 07:30' },
+      { name: '새벽예배', time: '오전 06:30' },
     ],
   })
 
@@ -49,8 +47,8 @@ export default function Footer() {
               <span>{churchInfo.name}</span>
             </h3>
             <p className="text-sm text-gray-300 leading-relaxed">
-              하나님의 사랑과 은혜를<br />
-              나누는 신앙 공동체
+              하나님이 이루어 가시는<br />
+              신앙 공동체
             </p>
           </div>
 
