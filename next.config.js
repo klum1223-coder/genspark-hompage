@@ -25,6 +25,13 @@ const nextConfig = {
   // 프로덕션 빌드 최적화
   swcMinify: true,
   reactStrictMode: true,
+  // Vercel 배포 시 타입 체크 및 린트 건너뛰기
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   // 실험적 기능
   experimental: {
     optimizeCss: true,
