@@ -138,7 +138,7 @@ export default async function SermonPage() {
         <div className="container-custom text-center">
           <h2 className="text-3xl font-bold mb-4">함께 예배하고 싶으신가요?</h2>
           <p className="text-xl text-gray-100 mb-8">
-            주일마다 오전 9시, 11시에 예배를 드립니다
+            주일마다 오전 10시 45분에 예배를 드립니다
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

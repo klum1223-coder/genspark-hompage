@@ -7,13 +7,17 @@ interface HeroContent {
   title: string
   subtitle: string
   description: string
+  backgroundType: 'gradient' | 'image' | 'video'
+  backgroundImage?: string
+  backgroundVideo?: string
 }
 
 export default function Hero() {
   const [heroContent, setHeroContent] = useState<HeroContent>({
     title: '하나님의 사랑으로\n함께하는 공동체',
     subtitle: '예수 그리스도의 복음으로 세워진',
-    description: '생명과 소망이 넘치는 교회'
+    description: '생명과 소망이 넘치는 교회',
+    backgroundType: 'gradient'
   })
 
   useEffect(() => {
@@ -27,7 +31,31 @@ export default function Hero() {
   const titleParts = heroContent.title.split('\\n')
 
   return (
-    <section className="relative h-screen min-h-[600px] flex items-center justify-center bg-gradient-to-br from-primary via-primary to-primary-light overflow-hidden">
+    <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+      {/* Background Layer */}
+      {heroContent.backgroundType === 'gradient' && (
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary-light"></div>
+      )}
+      
+      {heroContent.backgroundType === 'image' && heroContent.backgroundImage && (
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroContent.backgroundImage})` }}
+        ></div>
+      )}
+      
+      {heroContent.backgroundType === 'video' && heroContent.backgroundVideo && (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src={heroContent.backgroundVideo} type="video/mp4" />
+        </video>
+      )}
+
       {/* Background Overlay */}
       <div className="absolute inset-0 bg-black/40"></div>
 

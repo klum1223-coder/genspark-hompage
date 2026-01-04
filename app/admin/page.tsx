@@ -37,6 +37,9 @@ interface HeroContent {
   title: string
   subtitle: string
   description: string
+  backgroundType: 'gradient' | 'image' | 'video'
+  backgroundImage?: string
+  backgroundVideo?: string
 }
 
 interface AboutContent {
@@ -144,7 +147,8 @@ export default function AdminPage() {
   const [heroContent, setHeroContent] = useState<HeroContent>({
     title: '하나님의 사랑으로\n함께하는 공동체',
     subtitle: '예수 그리스도의 복음으로 세워진',
-    description: '생명과 소망이 넘치는 교회'
+    description: '생명과 소망이 넘치는 교회',
+    backgroundType: 'gradient'
   })
 
   // 교회 소개 페이지 내용
@@ -1606,6 +1610,62 @@ export default function AdminPage() {
                 />
               </div>
 
+              {/* 배경 설정 */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">🖼️ 배경 설정</h3>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    배경 타입
+                  </label>
+                  <select
+                    value={heroContent.backgroundType}
+                    onChange={(e) => setHeroContent({...heroContent, backgroundType: e.target.value as 'gradient' | 'image' | 'video'})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                  >
+                    <option value="gradient">그라데이션 (기본)</option>
+                    <option value="image">이미지</option>
+                    <option value="video">비디오</option>
+                  </select>
+                </div>
+
+                {heroContent.backgroundType === 'image' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      배경 이미지 URL
+                    </label>
+                    <input
+                      type="text"
+                      value={heroContent.backgroundImage || ''}
+                      onChange={(e) => setHeroContent({...heroContent, backgroundImage: e.target.value})}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                    <p className="mt-2 text-sm text-gray-500">
+                      💡 이미지 URL을 입력하세요. 추천 크기: 1920x1080px 이상
+                    </p>
+                  </div>
+                )}
+
+                {heroContent.backgroundType === 'video' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      배경 비디오 URL
+                    </label>
+                    <input
+                      type="text"
+                      value={heroContent.backgroundVideo || ''}
+                      onChange={(e) => setHeroContent({...heroContent, backgroundVideo: e.target.value})}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+                      placeholder="https://example.com/video.mp4"
+                    />
+                    <p className="mt-2 text-sm text-gray-500">
+                      💡 MP4 비디오 URL을 입력하세요. 자동 재생/반복됩니다.
+                    </p>
+                  </div>
+                )}
+              </div>
+
               <div className="flex justify-end">
                 <button
                   onClick={saveHeroContent}
@@ -1616,8 +1676,36 @@ export default function AdminPage() {
               </div>
 
               {/* 미리보기 */}
-              <div className="mt-8 p-6 bg-gradient-to-br from-primary to-primary-light rounded-lg">
-                <div className="text-center text-white">
+              <div className="mt-8 relative overflow-hidden rounded-lg" style={{ minHeight: '400px' }}>
+                {/* 배경 레이어 */}
+                {heroContent.backgroundType === 'gradient' && (
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary-light"></div>
+                )}
+                
+                {heroContent.backgroundType === 'image' && heroContent.backgroundImage && (
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                    style={{ backgroundImage: `url(${heroContent.backgroundImage})` }}
+                  ></div>
+                )}
+                
+                {heroContent.backgroundType === 'video' && heroContent.backgroundVideo && (
+                  <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover"
+                  >
+                    <source src={heroContent.backgroundVideo} type="video/mp4" />
+                  </video>
+                )}
+
+                {/* 오버레이 */}
+                <div className="absolute inset-0 bg-black/40"></div>
+
+                {/* 콘텐츠 */}
+                <div className="relative z-10 p-12 text-center text-white flex flex-col justify-center items-center" style={{ minHeight: '400px' }}>
                   <p className="text-lg mb-4">{heroContent.subtitle}</p>
                   <h1 className="text-4xl md:text-5xl font-bold mb-4 whitespace-pre-line">
                     {heroContent.title}
