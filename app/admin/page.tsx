@@ -108,7 +108,7 @@ export default function AdminPage() {
     name: '주성성결교회',
     englishName: 'Joosung Holiness Church',
     phone: '010-8986-3965',
-    fax: '02-1234-5679',
+    fax: '043-231-3530',
     email: 'klum3@naver.com',
     address: '충북 청주시 흥덕구 봉명로219번길 24',
     addressDetail: '2층'

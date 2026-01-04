@@ -1,17 +1,60 @@
-import Link from 'next/link'
-import { getLatestSermons } from '@/lib/youtube-api'
+'use client'
 
-export const metadata = {
-  title: '설교 - 주성성결교회',
-  description: '주성성결교회의 설교 말씀을 나눕니다',
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+
+interface Sermon {
+  id: string
+  title: string
+  pastor: string
+  date: string
+  verse: string
+  youtubeUrl: string
+  description: string
 }
 
-// ISR: 1시간마다 재검증
-export const revalidate = 3600
+export default function SermonPage() {
+  const [sermons, setSermons] = useState<Sermon[]>([])
 
-export default async function SermonPage() {
-  // 유튜브에서 최신 설교 가져오기
-  const sermons = await getLatestSermons(12)
+  useEffect(() => {
+    const loadSermons = () => {
+      try {
+        const savedSermons = localStorage.getItem('sermons')
+        if (savedSermons) {
+          const parsedSermons = JSON.parse(savedSermons)
+          console.log('Sermon page loaded sermons:', parsedSermons)
+          setSermons(parsedSermons)
+        }
+      } catch (error) {
+        console.error('Error loading sermons:', error)
+      }
+    }
+
+    loadSermons()
+    
+    // localStorage 변경 감지
+    const handleStorageChange = () => {
+      loadSermons()
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    
+    // 5초마다 자동 새로고침
+    const interval = setInterval(loadSermons, 5000)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(interval)
+    }
+  }, [])
+
+  // 유튜브 URL에서 비디오 ID 추출
+  const getYoutubeVideoId = (url: string) => {
+    if (!url) return null
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+    const match = url.match(regExp)
+    return (match && match[2].length === 11) ? match[2] : null
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
@@ -53,67 +96,83 @@ export default async function SermonPage() {
           {/* Sermon Grid */}
           {sermons.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sermons.map((sermon) => (
-                <a
-                  key={sermon.id}
-                  href={sermon.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
-                >
-                  {/* Thumbnail */}
-                  <div className="relative aspect-video bg-gray-200 overflow-hidden">
-                    <img
-                      src={sermon.thumbnail}
-                      alt={sermon.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/80 text-white text-xs rounded">
-                      {sermon.duration}
-                    </div>
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                      <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:scale-110">
-                        <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
+              {sermons.map((sermon) => {
+                const videoId = getYoutubeVideoId(sermon.youtubeUrl)
+                const youtubeUrl = sermon.youtubeUrl || ''
+                
+                return (
+                  <article key={sermon.id} className="card overflow-hidden group h-full">
+                    {videoId ? (
+                      <div className="relative aspect-video">
+                        <iframe
+                          src={`https://www.youtube.com/embed/${videoId}`}
+                          title={sermon.title}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="w-full h-full"
+                        />
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-5">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-                      {sermon.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                      {sermon.description || '주성성결교회 예배 말씀'}
-                    </p>
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <span>{new Date(sermon.publishedAt).toLocaleDateString('ko-KR')}</span>
-                      <span className="flex items-center space-x-1">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                        </svg>
-                        <span>{sermon.viewCount}</span>
+                    ) : (
+                      <div className="relative h-48 bg-gradient-to-br from-primary to-primary-light overflow-hidden">
+                        <div className="absolute inset-0 flex items-center justify-center text-white">
+                          <div className="text-center">
+                            <div className="text-5xl mb-2">🎤</div>
+                            <div className="text-sm font-medium">설교</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <div className="p-6">
+                      <span className="text-xs text-gray-500">
+                        {new Date(sermon.date).toLocaleDateString('ko-KR')}
                       </span>
+                      <h3 className="text-lg font-bold text-primary mt-2 mb-2 line-clamp-2">
+                        {sermon.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-2">본문: {sermon.verse}</p>
+                      <p className="text-sm text-gray-500">{sermon.pastor}</p>
+                      {sermon.description && (
+                        <p className="text-sm text-gray-600 mt-2 line-clamp-2">{sermon.description}</p>
+                      )}
+                      {youtubeUrl && (
+                        <a 
+                          href={youtubeUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center space-x-2 mt-4 text-primary hover:text-primary-light transition-colors text-sm font-medium"
+                        >
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                          </svg>
+                          <span>유튜브에서 보기</span>
+                        </a>
+                      )}
                     </div>
-                  </div>
-                </a>
-              ))}
+                  </article>
+                )
+              })}
             </div>
           ) : (
             <div className="text-center py-20">
               <div className="text-6xl mb-4">🎤</div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">설교 영상이 없습니다</h3>
-              <p className="text-gray-600 mb-6">곧 새로운 설교가 업로드됩니다.</p>
-              <a
-                href="https://www.youtube.com/@주성성결교회"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
-              >
-                유튜브 채널 방문하기
-              </a>
+              <p className="text-gray-600 mb-6">관리자 페이지에서 설교를 추가해주세요.</p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  href="/admin"
+                  className="inline-block px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
+                >
+                  관리자 페이지
+                </Link>
+                <a
+                  href="https://www.youtube.com/@주성성결교회"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors"
+                >
+                  유튜브 채널 방문하기
+                </a>
+              </div>
             </div>
           )}
 

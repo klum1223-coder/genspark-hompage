@@ -50,9 +50,27 @@ interface Sermon {
 
 export default function Home() {
   const [ministries, setMinistries] = useState<Ministry[]>([
-    { id: '1', title: '기도 사역', icon: '🙏', description: '영적 성장과 기도의 힘', detailContent: '' },
-    { id: '2', title: '문해력 사역', icon: '📖', description: '성경과 말씀 이해력 향상', detailContent: '' },
-    { id: '3', title: '글쓰기 사역', icon: '✍️', description: '신앙 고백과 콘텐츠 창작', detailContent: '' },
+    { 
+      id: '1', 
+      title: '기도 사역', 
+      icon: '🙏', 
+      description: '영적 성장과 기도의 힘', 
+      detailContent: 'https://blog.naver.com/joosung0416/224133934162' 
+    },
+    { 
+      id: '2', 
+      title: '문해력 사역', 
+      icon: '📖', 
+      description: '성경과 말씀 이해력 향상', 
+      detailContent: 'https://blog.naver.com/joosung0416' 
+    },
+    { 
+      id: '3', 
+      title: '글쓰기 사역', 
+      icon: '✍️', 
+      description: '신앙 고백과 콘텐츠 창작', 
+      detailContent: 'https://blog.naver.com/joosung0416' 
+    },
   ])
   
   const [newsItems, setNewsItems] = useState<NewsItem[]>([])
@@ -61,7 +79,7 @@ export default function Home() {
     name: '주성성결교회',
     englishName: 'Joosung Holiness Church',
     phone: '010-8986-3965',
-    fax: '02-1234-5679',
+    fax: '043-231-3530',
     email: 'klum3@naver.com',
     address: '충북 청주시 흥덕구 봉명로219번길 24',
     addressDetail: '2층'
@@ -74,7 +92,7 @@ export default function Home() {
   ])
   
   const [weekdayWorship, setWeekdayWorship] = useState<WorshipTime[]>([
-    { name: '새벽 예배', time: '오전 06:30', description: '하루를 주님께 드리는 시간' }
+    { name: '새벽 예배', time: '오전 6:30', description: '하루를 주님께 드리는 시간' }
   ])
 
   useEffect(() => {
@@ -161,15 +179,21 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* 주일 예배 */}
-            {sundayWorship.filter(worship => worship.time && worship.time.trim() !== '').map((worship, index) => (
-              <div key={index} className="card p-6 text-center hover:scale-105 transition-transform duration-300">
-                <div className="text-4xl mb-3">
-                  {index === 0 ? '⛪' : '👥'}
+            {sundayWorship.filter(worship => worship.time && worship.time.trim() !== '').map((worship, index) => {
+              // 각 예배별 아이콘 지정
+              let icon = '⛪'
+              if (worship.name.includes('소모임')) icon = '👥'
+              else if (worship.name.includes('수요')) icon = '🕯️'
+              else if (worship.name.includes('주일')) icon = '⛪'
+              
+              return (
+                <div key={index} className="card p-6 text-center hover:scale-105 transition-transform duration-300">
+                  <div className="text-4xl mb-3">{icon}</div>
+                  <h3 className="text-lg font-bold text-primary mb-2">{worship.name}</h3>
+                  <p className="font-medium text-gray-600">{worship.time}</p>
                 </div>
-                <h3 className="text-lg font-bold text-primary mb-2">{worship.name}</h3>
-                <p className="font-medium text-gray-600">{worship.time}</p>
-              </div>
-            ))}
+              )
+            })}
 
             {/* 새벽 예배 */}
             {weekdayWorship.filter(worship => worship.time && worship.time.trim() !== '').map((worship, index) => (
@@ -286,23 +310,55 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {ministries.slice(0, 3).map((ministry) => (
-              <Link 
-                key={ministry.id}
-                href="/ministry"
-                className="card p-8 text-center hover:scale-105 hover:shadow-xl transition-all duration-300 group"
-              >
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                  {ministry.icon}
-                </div>
-                <h3 className="text-xl font-bold text-primary mb-2 group-hover:text-primary-light transition-colors">
-                  {ministry.title}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {ministry.description}
-                </p>
-              </Link>
-            ))}
+            {ministries.slice(0, 3).map((ministry) => {
+              const isExternalLink = ministry.detailContent && ministry.detailContent.startsWith('http')
+              
+              if (isExternalLink) {
+                return (
+                  <a 
+                    key={ministry.id}
+                    href={ministry.detailContent}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="card p-8 text-center hover:scale-105 hover:shadow-xl transition-all duration-300 group"
+                  >
+                    <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                      {ministry.icon}
+                    </div>
+                    <h3 className="text-xl font-bold text-primary mb-2 group-hover:text-primary-light transition-colors">
+                      {ministry.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-3">
+                      {ministry.description}
+                    </p>
+                    <span className="inline-flex items-center space-x-1 text-sm text-primary">
+                      <span>블로그 보기</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </span>
+                  </a>
+                )
+              }
+              
+              return (
+                <Link 
+                  key={ministry.id}
+                  href="/ministry"
+                  className="card p-8 text-center hover:scale-105 hover:shadow-xl transition-all duration-300 group"
+                >
+                  <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                    {ministry.icon}
+                  </div>
+                  <h3 className="text-xl font-bold text-primary mb-2 group-hover:text-primary-light transition-colors">
+                    {ministry.title}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {ministry.description}
+                  </p>
+                </Link>
+              )
+            })}
           </div>
 
           <div className="text-center mt-8 sm:hidden">

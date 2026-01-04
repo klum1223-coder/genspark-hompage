@@ -18,7 +18,7 @@ export default function Footer() {
       { name: '수요 예배', time: '오후 7:30' },
     ],
     weekday: [
-      { name: '새벽예배', time: '오전 06:30' },
+      { name: '새벽예배', time: '오전 6:30' },
     ],
   })
 

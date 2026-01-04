@@ -45,14 +45,17 @@ export default function ContactPage() {
             {/* Map */}
             <div className="order-2 lg:order-1">
               <div className="card overflow-hidden h-[400px] lg:h-full">
-                {/* 실제 구현 시 카카오맵/네이버맵 API 사용 */}
-                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-                  <div className="text-center">
-                    <div className="text-6xl mb-4">🗺️</div>
-                    <p className="text-lg">지도가 표시됩니다</p>
-                    <p className="text-sm mt-2">(카카오맵/네이버맵 API 연동)</p>
-                  </div>
-                </div>
+                {/* 네이버 지도 */}
+                <iframe 
+                  src="https://map.naver.com/p/entry/place/1279788476?c=15.00,0,0,0,dh" 
+                  width="100%" 
+                  height="100%" 
+                  style={{border: 0}}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="주성성결교회 위치"
+                />
               </div>
             </div>
 
@@ -92,7 +95,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg text-primary mb-1">팩스</h3>
-                    <p className="text-gray-700">02-1234-5679</p>
+                    <p className="text-gray-700">043-231-3530</p>
                   </div>
                 </div>
 
@@ -112,10 +115,6 @@ export default function ContactPage() {
               <div className="mt-8 p-6 bg-beige rounded-lg">
                 <h3 className="font-bold text-lg text-primary mb-4">대중교통 안내</h3>
                 <div className="space-y-3 text-sm text-gray-700">
-                  <div>
-                    <strong className="text-primary">🚇 지하철:</strong>
-                    <p className="ml-6 mt-1">2호선 역삼역 3번 출구 (도보 5분)</p>
-                  </div>
                   <div>
                     <strong className="text-primary">🚌 버스:</strong>
                     <p className="ml-6 mt-1">간선버스: 146, 301, 740</p>
