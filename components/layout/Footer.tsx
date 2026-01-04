@@ -104,10 +104,10 @@ export default function Footer() {
             <h3 className="text-lg font-bold mb-4">예배 시간</h3>
             <ul className="space-y-2 text-sm text-gray-300">
               {worshipTimes.sunday.map((item, idx) => (
-                <li key={idx}>{item.name}: {item.time}</li>
+                <li key={idx}>{item.name} {item.time}</li>
               ))}
               {worshipTimes.weekday.map((item, idx) => (
-                <li key={idx}>{item.name}: {item.time}</li>
+                <li key={idx}>{item.name} {item.time}</li>
               ))}
             </ul>
           </div>

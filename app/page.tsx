@@ -38,6 +38,16 @@ interface ChurchInfo {
   addressDetail: string
 }
 
+interface Sermon {
+  id: string
+  title: string
+  pastor: string
+  date: string
+  verse: string
+  youtubeUrl: string
+  description: string
+}
+
 export default function Home() {
   const [ministries, setMinistries] = useState<Ministry[]>([
     { id: '1', title: '기도 사역', icon: '🙏', description: '영적 성장과 기도의 힘', detailContent: '' },
@@ -46,6 +56,7 @@ export default function Home() {
   ])
   
   const [newsItems, setNewsItems] = useState<NewsItem[]>([])
+  const [sermons, setSermons] = useState<Sermon[]>([])
   const [churchInfo, setChurchInfo] = useState<ChurchInfo>({
     name: '주성성결교회',
     englishName: 'Joosung Holiness Church',
@@ -78,6 +89,11 @@ export default function Home() {
         setNewsItems(JSON.parse(savedNews))
       }
 
+      const savedSermons = localStorage.getItem('sermons')
+      if (savedSermons) {
+        setSermons(JSON.parse(savedSermons))
+      }
+
       const savedChurchInfo = localStorage.getItem('church_info')
       if (savedChurchInfo) {
         setChurchInfo(JSON.parse(savedChurchInfo))
@@ -94,7 +110,14 @@ export default function Home() {
     loadData()
   }, [])
 
-  const recentSermons: any[] = []
+  // 유튜브 URL에서 비디오 ID 추출
+  const getYoutubeVideoId = (url: string) => {
+    if (!url) return null
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+    const match = url.match(regExp)
+    return (match && match[2].length === 11) ? match[2] : null
+  }
+
   const recentAlbums: any[] = []
 
   return (
@@ -114,34 +137,26 @@ export default function Home() {
             <div className="w-20 h-1 bg-primary mx-auto"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* 주일 예배 */}
             {sundayWorship.map((worship, index) => (
-              <div key={index} className="card p-8 text-center hover:scale-105 transition-transform duration-300">
-                <div className="text-5xl mb-4">
+              <div key={index} className="card p-6 text-center hover:scale-105 transition-transform duration-300">
+                <div className="text-4xl mb-3">
                   {index === 0 ? '⛪' : '👥'}
                 </div>
-                <h3 className="text-xl font-bold text-primary mb-4">{worship.name}</h3>
-                <div className="space-y-2 text-gray-600">
-                  <p className="font-medium">{worship.time}</p>
-                  {worship.description && (
-                    <p className="text-sm text-gray-500 mt-4">{worship.description}</p>
-                  )}
-                </div>
+                <h3 className="text-lg font-bold text-primary mb-2">{worship.name}</h3>
+                <p className="font-medium text-gray-600">{worship.time}</p>
               </div>
             ))}
 
             {/* 새벽 예배 */}
             {weekdayWorship.map((worship, index) => (
-              <div key={`weekday-${index}`} className="card p-8 text-center hover:scale-105 transition-transform duration-300 md:col-span-2">
-                <div className="text-5xl mb-4">🌅</div>
-                <h3 className="text-xl font-bold text-primary mb-4">{worship.name}</h3>
-                <div className="space-y-2 text-gray-600">
-                  <p className="font-medium">{worship.time}</p>
-                  {worship.description && (
-                    <p className="text-sm text-gray-500 mt-4">{worship.description}</p>
-                  )}
+              <div key={`weekday-${index}`} className="card p-6 text-center hover:scale-105 transition-transform duration-300">
+                <div className="text-4xl mb-3">
+                  {worship.name.includes('새벽') ? '🌅' : '🕯️'}
                 </div>
+                <h3 className="text-lg font-bold text-primary mb-2">{worship.name}</h3>
+                <p className="font-medium text-gray-600">{worship.time}</p>
               </div>
             ))}
           </div>
@@ -169,32 +184,48 @@ export default function Home() {
             </Link>
           </div>
 
-          {recentSermons.length > 0 ? (
+          {sermons.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {recentSermons.map((sermon) => (
-                <Link href={`/sermon/${sermon._id}`} key={sermon._id}>
-                  <article className="card overflow-hidden group cursor-pointer h-full">
-                    <div className="relative h-48 bg-gradient-to-br from-primary to-primary-light overflow-hidden">
-                      <div className="absolute inset-0 flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
-                        <div className="text-center">
-                          <div className="text-5xl mb-2">🎤</div>
-                          <div className="text-sm font-medium">설교</div>
+              {sermons.slice(0, 3).map((sermon) => {
+                const videoId = getYoutubeVideoId(sermon.youtubeUrl)
+                return (
+                  <article key={sermon.id} className="card overflow-hidden group h-full">
+                    {videoId ? (
+                      <div className="relative aspect-video">
+                        <iframe
+                          src={`https://www.youtube.com/embed/${videoId}`}
+                          title={sermon.title}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="w-full h-full"
+                        />
+                      </div>
+                    ) : (
+                      <div className="relative h-48 bg-gradient-to-br from-primary to-primary-light overflow-hidden">
+                        <div className="absolute inset-0 flex items-center justify-center text-white">
+                          <div className="text-center">
+                            <div className="text-5xl mb-2">🎤</div>
+                            <div className="text-sm font-medium">설교</div>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                     <div className="p-6">
                       <span className="text-xs text-gray-500">
                         {new Date(sermon.date).toLocaleDateString('ko-KR')}
                       </span>
-                      <h3 className="text-lg font-bold text-primary mt-2 mb-2 group-hover:text-primary-light transition-colors line-clamp-2">
+                      <h3 className="text-lg font-bold text-primary mt-2 mb-2 line-clamp-2">
                         {sermon.title}
                       </h3>
-                      <p className="text-sm text-gray-600 mb-3">본문: {sermon.verse}</p>
+                      <p className="text-sm text-gray-600 mb-2">본문: {sermon.verse}</p>
                       <p className="text-sm text-gray-500">{sermon.pastor}</p>
+                      {sermon.description && (
+                        <p className="text-sm text-gray-600 mt-2 line-clamp-2">{sermon.description}</p>
+                      )}
                     </div>
                   </article>
-                </Link>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <div className="text-center py-12 text-gray-500">
@@ -414,9 +445,9 @@ export default function Home() {
             <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
               <div className="flex items-start space-x-3">
                 <div className="text-2xl">📍</div>
-                <div>
+                <div className="flex-1">
                   <h4 className="font-bold text-primary mb-1">주소</h4>
-                  <p className="text-sm text-gray-600">{churchInfo.address}, {churchInfo.addressDetail}</p>
+                  <p className="text-sm text-gray-600 break-keep">{churchInfo.address} {churchInfo.addressDetail}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">

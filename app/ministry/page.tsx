@@ -1,146 +1,62 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
-// 사역 데이터 타입 정의 (나중에 CMS로 교체 가능)
+// 사역 데이터 타입 정의
 interface Ministry {
-  id: number
-  name: string
-  category: '예배' | '교육' | '선교' | '친교' | '기타'
+  id: string
+  title: string
+  icon: string
   description: string
-  details: string
+  detailContent: string
+  category: '예배' | '교육' | '선교' | '친교' | '기타'
   meetingTime: string
   meetingPlace: string
   leader: string
   contact?: string
-  image: string // 이미지 URL (임시로 그라데이션 사용)
+  date: string
 }
 
-// 임시 사역 데이터
-const ministriesData: Ministry[] = [
-  {
-    id: 1,
-    name: '청년부',
-    category: '교육',
-    description: '대학생과 청년들의 신앙 공동체',
-    details: '20-30대 청년들이 함께 예배하고 교제하며, 말씀을 통해 성장하는 공동체입니다. 매주 찬양과 나눔의 시간을 통해 서로를 격려하고 믿음을 세워갑니다.',
-    meetingTime: '주일 오후 2시',
-    meetingPlace: '교육관 3층 청년부실',
-    leader: '김청년 전도사',
-    contact: '010-1234-5678',
-    image: 'gradient-1',
-  },
-  {
-    id: 2,
-    name: '유년부',
-    category: '교육',
-    description: '초등학교 1-3학년 어린이 교육',
-    details: '초등학교 저학년 어린이들을 위한 성경 교육과 신앙 훈련 프로그램입니다. 재미있는 활동과 게임을 통해 하나님의 사랑을 배웁니다.',
-    meetingTime: '주일 오전 11시',
-    meetingPlace: '교육관 2층 유년부실',
-    leader: '박선생 교사',
-    contact: '010-2345-6789',
-    image: 'gradient-2',
-  },
-  {
-    id: 3,
-    name: '주일학교',
-    category: '교육',
-    description: '유치부부터 고등부까지 연령별 교육',
-    details: '영유아부터 고등학생까지 각 연령에 맞는 체계적인 성경 교육을 제공합니다. 경험 많은 교사진이 어린이와 청소년의 신앙 성장을 돕습니다.',
-    meetingTime: '주일 오전 11시',
-    meetingPlace: '교육관 전체',
-    leader: '이교육 부장',
-    contact: '010-3456-7890',
-    image: 'gradient-3',
-  },
-  {
-    id: 4,
-    name: '찬양팀',
-    category: '예배',
-    description: '하나님께 영광 돌리는 찬양 사역',
-    details: '예배를 인도하고 찬양으로 하나님을 높이는 사역입니다. 다양한 악기와 보컬로 구성되어 있으며, 정기적인 연습을 통해 은혜로운 찬양을 준비합니다.',
-    meetingTime: '주일 오전 9시 / 연습: 토요일 오후 7시',
-    meetingPlace: '본당',
-    leader: '최찬양 팀장',
-    contact: '010-4567-8901',
-    image: 'gradient-4',
-  },
-  {
-    id: 5,
-    name: '선교부',
-    category: '선교',
-    description: '국내외 선교와 복음 전파',
-    details: '국내외 선교지를 섬기고 복음을 전하는 사역입니다. 단기 선교팀 파송, 선교사 후원, 지역 사회 봉사 등 다양한 선교 활동을 펼칩니다.',
-    meetingTime: '월 1회 셋째주 주일 오후 1시',
-    meetingPlace: '본관 3층 선교실',
-    leader: '정선교 부장',
-    contact: '010-5678-9012',
-    image: 'gradient-5',
-  },
-  {
-    id: 6,
-    name: '구역모임',
-    category: '친교',
-    description: '가정과 지역별 소그룹 교제',
-    details: '지역별로 나뉘어 가정에서 함께 모여 말씀을 나누고 기도하며 교제하는 소그룹 모임입니다. 서로의 삶을 나누고 격려하는 시간입니다.',
-    meetingTime: '매주 목요일 오후 7시 30분',
-    meetingPlace: '각 구역별 가정',
-    leader: '김구역 총무',
-    contact: '010-6789-0123',
-    image: 'gradient-6',
-  },
-  {
-    id: 7,
-    name: '여선교회',
-    category: '친교',
-    description: '자매들의 기도와 봉사 공동체',
-    details: '교회의 자매 성도들이 함께 기도하고 봉사하며 영적 성장을 추구하는 모임입니다. 교회 내 다양한 섬김과 지역 사회 봉사를 감당합니다.',
-    meetingTime: '매주 수요일 오전 10시',
-    meetingPlace: '본관 2층 여선교회실',
-    leader: '박여선 회장',
-    contact: '010-7890-1234',
-    image: 'gradient-7',
-  },
-  {
-    id: 8,
-    name: '남선교회',
-    category: '친교',
-    description: '형제들의 신앙과 섬김의 공동체',
-    details: '교회의 형제 성도들이 함께 모여 말씀을 나누고 기도하며 교회를 섬기는 모임입니다. 교회 시설 관리와 봉사 활동을 주도합니다.',
-    meetingTime: '매월 둘째주 토요일 오전 7시',
-    meetingPlace: '본관 1층 남선교회실',
-    leader: '이남선 회장',
-    contact: '010-8901-2345',
-    image: 'gradient-8',
-  },
-]
-
-const categories = ['전체', '예배', '교육', '선교', '친교'] as const
+const categories = ['전체', '예배', '교육', '선교', '친교', '기타'] as const
 
 export default function MinistryPage() {
   const [selectedCategory, setSelectedCategory] = useState<typeof categories[number]>('전체')
   const [layout, setLayout] = useState<'zigzag' | 'grid'>('zigzag')
+  const [ministries, setMinistries] = useState<Ministry[]>([])
+
+  // localStorage에서 데이터 로드
+  useEffect(() => {
+    const stored = localStorage.getItem('ministries')
+    if (stored) {
+      try {
+        const parsedData = JSON.parse(stored)
+        setMinistries(parsedData)
+      } catch (error) {
+        console.error('Failed to load ministries:', error)
+        setMinistries([])
+      }
+    }
+  }, [])
 
   // 카테고리별 필터링
   const filteredMinistries = selectedCategory === '전체'
-    ? ministriesData
-    : ministriesData.filter(m => m.category === selectedCategory)
+    ? ministries
+    : ministries.filter(m => m.category === selectedCategory)
 
   // 이미지 그라데이션 생성
-  const getGradient = (image: string) => {
-    const gradients: Record<string, string> = {
-      'gradient-1': 'from-blue-400 to-blue-600',
-      'gradient-2': 'from-green-400 to-green-600',
-      'gradient-3': 'from-purple-400 to-purple-600',
-      'gradient-4': 'from-pink-400 to-pink-600',
-      'gradient-5': 'from-yellow-400 to-yellow-600',
-      'gradient-6': 'from-red-400 to-red-600',
-      'gradient-7': 'from-indigo-400 to-indigo-600',
-      'gradient-8': 'from-teal-400 to-teal-600',
-    }
-    return gradients[image] || 'from-gray-400 to-gray-600'
+  const getGradient = (index: number) => {
+    const gradients = [
+      'from-blue-400 to-blue-600',
+      'from-green-400 to-green-600',
+      'from-purple-400 to-purple-600',
+      'from-pink-400 to-pink-600',
+      'from-yellow-400 to-yellow-600',
+      'from-red-400 to-red-600',
+      'from-indigo-400 to-indigo-600',
+      'from-teal-400 to-teal-600',
+    ]
+    return gradients[index % gradients.length]
   }
 
   // 이미지 아이콘 생성
@@ -245,10 +161,10 @@ export default function MinistryPage() {
                   {/* Image */}
                   <div className="w-full lg:w-1/2">
                     <div className="relative overflow-hidden rounded-2xl shadow-xl group-hover:shadow-2xl transition-shadow duration-300">
-                      <div className={`aspect-[4/3] bg-gradient-to-br ${getGradient(ministry.image)} flex items-center justify-center group-hover:scale-105 transition-transform duration-500`}>
+                      <div className={`aspect-[4/3] bg-gradient-to-br ${getGradient(index)} flex items-center justify-center group-hover:scale-105 transition-transform duration-500`}>
                         <div className="text-center text-white">
-                          <div className="text-8xl mb-4">{getIcon(ministry.category)}</div>
-                          <div className="text-2xl font-bold">{ministry.name}</div>
+                          <div className="text-8xl mb-4">{ministry.icon || getIcon(ministry.category)}</div>
+                          <div className="text-2xl font-bold">{ministry.title}</div>
                         </div>
                       </div>
                       {/* Category Badge */}
@@ -262,39 +178,45 @@ export default function MinistryPage() {
                   <div className="w-full lg:w-1/2 space-y-6">
                     <div>
                       <h3 className="text-3xl md:text-4xl font-bold text-primary mb-4 group-hover:text-primary-light transition-colors">
-                        {ministry.name}
+                        {ministry.title}
                       </h3>
                       <p className="text-xl text-gray-700 font-medium mb-4">
                         {ministry.description}
                       </p>
-                      <p className="text-gray-600 leading-relaxed">
-                        {ministry.details}
+                      <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                        {ministry.detailContent}
                       </p>
                     </div>
 
                     {/* Meeting Info */}
                     <div className="bg-white rounded-xl p-6 shadow-md space-y-3">
-                      <div className="flex items-start space-x-3">
-                        <div className="text-2xl">🕐</div>
-                        <div>
-                          <div className="text-sm text-gray-500">모임 시간</div>
-                          <div className="font-medium text-gray-800">{ministry.meetingTime}</div>
+                      {ministry.meetingTime && (
+                        <div className="flex items-start space-x-3">
+                          <div className="text-2xl">🕐</div>
+                          <div>
+                            <div className="text-sm text-gray-500">모임 시간</div>
+                            <div className="font-medium text-gray-800">{ministry.meetingTime}</div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="text-2xl">📍</div>
-                        <div>
-                          <div className="text-sm text-gray-500">모임 장소</div>
-                          <div className="font-medium text-gray-800">{ministry.meetingPlace}</div>
+                      )}
+                      {ministry.meetingPlace && (
+                        <div className="flex items-start space-x-3">
+                          <div className="text-2xl">📍</div>
+                          <div>
+                            <div className="text-sm text-gray-500">모임 장소</div>
+                            <div className="font-medium text-gray-800">{ministry.meetingPlace}</div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="text-2xl">👤</div>
-                        <div>
-                          <div className="text-sm text-gray-500">담당자</div>
-                          <div className="font-medium text-gray-800">{ministry.leader}</div>
+                      )}
+                      {ministry.leader && (
+                        <div className="flex items-start space-x-3">
+                          <div className="text-2xl">👤</div>
+                          <div>
+                            <div className="text-sm text-gray-500">담당자</div>
+                            <div className="font-medium text-gray-800">{ministry.leader}</div>
+                          </div>
                         </div>
-                      </div>
+                      )}
                       {ministry.contact && (
                         <div className="flex items-start space-x-3">
                           <div className="text-2xl">📞</div>
@@ -304,14 +226,22 @@ export default function MinistryPage() {
                           </div>
                         </div>
                       )}
+                      {ministry.date && (
+                        <div className="flex items-start space-x-3">
+                          <div className="text-2xl">📅</div>
+                          <div>
+                            <div className="text-sm text-gray-500">작성일</div>
+                            <div className="font-medium text-gray-800">
+                              {new Date(ministry.date).toLocaleDateString('ko-KR')}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-3">
-                      <button className="flex-1 btn-primary text-center">
-                        자세히 보기
-                      </button>
-                      <Link href="/contact" className="flex-1 btn-secondary text-center">
+                      <Link href="/contact" className="flex-1 btn-primary text-center">
                         문의하기
                       </Link>
                     </div>
@@ -329,9 +259,9 @@ export default function MinistryPage() {
                 >
                   {/* Image */}
                   <div className="relative overflow-hidden">
-                    <div className={`aspect-[4/3] bg-gradient-to-br ${getGradient(ministry.image)} flex items-center justify-center group-hover:scale-110 transition-transform duration-500`}>
+                    <div className={`aspect-[4/3] bg-gradient-to-br ${getGradient(parseInt(ministry.id) || 0)} flex items-center justify-center group-hover:scale-110 transition-transform duration-500`}>
                       <div className="text-center text-white">
-                        <div className="text-6xl mb-2">{getIcon(ministry.category)}</div>
+                        <div className="text-6xl mb-2">{ministry.icon || getIcon(ministry.category)}</div>
                       </div>
                     </div>
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-primary">
@@ -343,7 +273,7 @@ export default function MinistryPage() {
                   <div className="p-6 space-y-4">
                     <div>
                       <h3 className="text-2xl font-bold text-primary mb-2 group-hover:text-primary-light transition-colors">
-                        {ministry.name}
+                        {ministry.title}
                       </h3>
                       <p className="text-sm text-gray-600 line-clamp-2">
                         {ministry.description}
@@ -352,24 +282,30 @@ export default function MinistryPage() {
 
                     {/* Compact Meeting Info */}
                     <div className="space-y-2 text-sm">
-                      <div className="flex items-center space-x-2 text-gray-700">
-                        <span>🕐</span>
-                        <span>{ministry.meetingTime}</span>
-                      </div>
-                      <div className="flex items-center space-x-2 text-gray-700">
-                        <span>📍</span>
-                        <span>{ministry.meetingPlace}</span>
-                      </div>
-                      <div className="flex items-center space-x-2 text-gray-700">
-                        <span>👤</span>
-                        <span>{ministry.leader}</span>
-                      </div>
+                      {ministry.meetingTime && (
+                        <div className="flex items-center space-x-2 text-gray-700">
+                          <span>🕐</span>
+                          <span>{ministry.meetingTime}</span>
+                        </div>
+                      )}
+                      {ministry.meetingPlace && (
+                        <div className="flex items-center space-x-2 text-gray-700">
+                          <span>📍</span>
+                          <span>{ministry.meetingPlace}</span>
+                        </div>
+                      )}
+                      {ministry.leader && (
+                        <div className="flex items-center space-x-2 text-gray-700">
+                          <span>👤</span>
+                          <span>{ministry.leader}</span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Button */}
-                    <button className="w-full btn-primary text-sm">
-                      자세히 보기
-                    </button>
+                    <Link href="/contact" className="w-full btn-primary text-sm block text-center">
+                      문의하기
+                    </Link>
                   </div>
                 </article>
               ))}

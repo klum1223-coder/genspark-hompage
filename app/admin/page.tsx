@@ -72,6 +72,16 @@ interface PrayerRequest {
   isPublic: boolean
 }
 
+interface Sermon {
+  id: string
+  title: string
+  pastor: string
+  date: string
+  verse: string
+  youtubeUrl: string
+  description: string
+}
+
 interface SiteStyles {
   primaryColor: string
   secondaryColor: string
@@ -207,6 +217,19 @@ export default function AdminPage() {
     }
   ])
 
+  // 설교
+  const [sermons, setSermons] = useState<Sermon[]>([
+    {
+      id: '1',
+      title: '환영 설교',
+      pastor: '김선우 목사',
+      date: new Date().toISOString().split('T')[0],
+      verse: '요한복음 3:16',
+      youtubeUrl: '',
+      description: '하나님의 사랑에 대한 설교입니다.'
+    }
+  ])
+
   // 사이트 스타일
   const [siteStyles, setSiteStyles] = useState<SiteStyles>({
     primaryColor: '#8B4513',
@@ -286,6 +309,12 @@ export default function AdminPage() {
       setPrayerRequests(JSON.parse(savedPrayers))
     }
 
+    // 설교 로드
+    const savedSermons = localStorage.getItem('sermons')
+    if (savedSermons) {
+      setSermons(JSON.parse(savedSermons))
+    }
+
     // 사이트 스타일 로드
     const savedStyles = localStorage.getItem('site_styles')
     if (savedStyles) {
@@ -363,6 +392,28 @@ export default function AdminPage() {
   const savePrayerRequests = () => {
     localStorage.setItem('prayer_requests', JSON.stringify(prayerRequests))
     showSaveMessage()
+  }
+
+  const saveSermons = () => {
+    localStorage.setItem('sermons', JSON.stringify(sermons))
+    showSaveMessage()
+  }
+
+  const addSermon = () => {
+    const newSermon: Sermon = {
+      id: Date.now().toString(),
+      title: '새 설교',
+      pastor: '김선우 목사',
+      date: new Date().toISOString().split('T')[0],
+      verse: '',
+      youtubeUrl: '',
+      description: ''
+    }
+    setSermons([newSermon, ...sermons])
+  }
+
+  const deleteSermon = (id: string) => {
+    setSermons(sermons.filter(s => s.id !== id))
   }
 
   const saveSiteStyles = () => {
@@ -548,6 +599,7 @@ export default function AdminPage() {
               { id: 'worship', label: '⛪ 예배시간' },
               { id: 'about', label: '📖 교회소개' },
               { id: 'ministry', label: '🎯 교회사역' },
+              { id: 'sermon', label: '🎤 설교관리' },
               { id: 'news', label: '📰 교회소식' },
               { id: 'prayer', label: '🙏 기도요청' },
               { id: 'popup', label: '📢 팝업배너' },
@@ -1012,6 +1064,153 @@ export default function AdminPage() {
               >
                 💾 저장하기
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* 설교 관리 */}
+        {activeTab === 'sermon' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-primary">설교 관리</h2>
+              <button
+                onClick={addSermon}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                ➕ 설교 추가
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {sermons.map((sermon, index) => (
+                <div key={sermon.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        설교 제목
+                      </label>
+                      <input
+                        type="text"
+                        value={sermon.title}
+                        onChange={(e) => {
+                          const updated = [...sermons]
+                          updated[index].title = e.target.value
+                          setSermons(updated)
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          설교자
+                        </label>
+                        <input
+                          type="text"
+                          value={sermon.pastor}
+                          onChange={(e) => {
+                            const updated = [...sermons]
+                            updated[index].pastor = e.target.value
+                            setSermons(updated)
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          날짜
+                        </label>
+                        <input
+                          type="date"
+                          value={sermon.date}
+                          onChange={(e) => {
+                            const updated = [...sermons]
+                            updated[index].date = e.target.value
+                            setSermons(updated)
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        본문 말씀
+                      </label>
+                      <input
+                        type="text"
+                        value={sermon.verse}
+                        onChange={(e) => {
+                          const updated = [...sermons]
+                          updated[index].verse = e.target.value
+                          setSermons(updated)
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        placeholder="예: 요한복음 3:16"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        유튜브 URL
+                      </label>
+                      <input
+                        type="url"
+                        value={sermon.youtubeUrl}
+                        onChange={(e) => {
+                          const updated = [...sermons]
+                          updated[index].youtubeUrl = e.target.value
+                          setSermons(updated)
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        설교 설명
+                      </label>
+                      <textarea
+                        value={sermon.description}
+                        onChange={(e) => {
+                          const updated = [...sermons]
+                          updated[index].description = e.target.value
+                          setSermons(updated)
+                        }}
+                        rows={3}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        placeholder="설교에 대한 간단한 설명을 입력하세요"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={() => deleteSermon(sermon.id)}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                    >
+                      🗑️ 삭제
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={saveSermons}
+                className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
+              >
+                💾 저장하기
+              </button>
+            </div>
+
+            {/* 안내 */}
+            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-bold text-blue-900 mb-2">💡 유튜브 URL 입력 방법</h4>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>1. 유튜브에서 설교 영상을 업로드합니다</li>
+                <li>2. 영상 URL을 복사합니다 (예: https://www.youtube.com/watch?v=VIDEO_ID)</li>
+                <li>3. 위의 "유튜브 URL" 칸에 붙여넣습니다</li>
+                <li>4. 저장하면 메인 페이지의 "최근 설교" 섹션에 영상이 표시됩니다</li>
+              </ul>
             </div>
           </div>
         )}
