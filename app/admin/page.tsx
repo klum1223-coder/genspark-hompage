@@ -347,59 +347,72 @@ export default function AdminPage() {
 
   const showSaveMessage = () => {
     setSaveSuccess(true)
+    // 저장 후 다른 탭/창에 변경사항 알림
+    window.dispatchEvent(new Event('storage'))
     setTimeout(() => setSaveSuccess(false), 3000)
   }
 
   const saveChurchInfo = () => {
     localStorage.setItem('church_info', JSON.stringify(churchInfo))
+    console.log('Saved church info:', churchInfo)
     showSaveMessage()
   }
 
   const savePastorInfo = () => {
     localStorage.setItem('pastor_info', JSON.stringify(pastorInfo))
+    console.log('Saved pastor info:', pastorInfo)
     showSaveMessage()
   }
 
   const saveWorshipTimes = () => {
-    localStorage.setItem('worship_times', JSON.stringify({
+    const worshipData = {
       sunday: sundayWorship,
       weekday: weekdayWorship
-    }))
+    }
+    localStorage.setItem('worship_times', JSON.stringify(worshipData))
+    console.log('Saved worship times:', worshipData)
     showSaveMessage()
   }
 
   const savePopupData = () => {
     localStorage.setItem('popup_data', JSON.stringify(popupData))
+    console.log('Saved popup data:', popupData)
     showSaveMessage()
   }
 
   const saveHeroContent = () => {
     localStorage.setItem('hero_content', JSON.stringify(heroContent))
+    console.log('Saved hero content:', heroContent)
     showSaveMessage()
   }
 
   const saveAboutContent = () => {
     localStorage.setItem('about_content', JSON.stringify(aboutContent))
+    console.log('Saved about content:', aboutContent)
     showSaveMessage()
   }
 
   const saveMinistries = () => {
     localStorage.setItem('ministries', JSON.stringify(ministries))
+    console.log('Saved ministries:', ministries)
     showSaveMessage()
   }
 
   const saveNewsItems = () => {
     localStorage.setItem('news_items', JSON.stringify(newsItems))
+    console.log('Saved news items:', newsItems)
     showSaveMessage()
   }
 
   const savePrayerRequests = () => {
     localStorage.setItem('prayer_requests', JSON.stringify(prayerRequests))
+    console.log('Saved prayer requests:', prayerRequests)
     showSaveMessage()
   }
 
   const saveSermons = () => {
     localStorage.setItem('sermons', JSON.stringify(sermons))
+    console.log('Saved sermons:', sermons)
     showSaveMessage()
   }
 

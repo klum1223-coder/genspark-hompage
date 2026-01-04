@@ -15,6 +15,7 @@ export default function Footer() {
     sunday: [
       { name: '주일 예배', time: '오전 10:45' },
       { name: '소모임', time: '오후 1:00' },
+      { name: '수요 예배', time: '오후 7:30' },
     ],
     weekday: [
       { name: '새벽예배', time: '오전 06:30' },
@@ -23,15 +24,38 @@ export default function Footer() {
 
   useEffect(() => {
     // 로컬스토리지에서 교회 정보 불러오기
-    const savedInfo = localStorage.getItem('church_info')
-    if (savedInfo) {
-      setChurchInfo(JSON.parse(savedInfo))
+    const loadData = () => {
+      try {
+        const savedInfo = localStorage.getItem('church_info')
+        if (savedInfo) {
+          setChurchInfo(JSON.parse(savedInfo))
+        }
+
+        // 로컬스토리지에서 예배 시간 불러오기
+        const savedTimes = localStorage.getItem('worship_times')
+        if (savedTimes) {
+          setWorshipTimes(JSON.parse(savedTimes))
+        }
+      } catch (error) {
+        console.error('Error loading footer data:', error)
+      }
     }
 
-    // 로컬스토리지에서 예배 시간 불러오기
-    const savedTimes = localStorage.getItem('worship_times')
-    if (savedTimes) {
-      setWorshipTimes(JSON.parse(savedTimes))
+    loadData()
+    
+    // localStorage 변경 감지
+    const handleStorageChange = () => {
+      loadData()
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    
+    // 5초마다 데이터 새로고침
+    const interval = setInterval(loadData, 5000)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(interval)
     }
   }, [])
 

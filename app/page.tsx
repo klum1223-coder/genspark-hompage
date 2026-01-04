@@ -69,7 +69,8 @@ export default function Home() {
   
   const [sundayWorship, setSundayWorship] = useState<WorshipTime[]>([
     { name: '주일 예배', time: '오전 10:45', description: '주일 메인 예배' },
-    { name: '성장이 있는 소모임', time: '오후 1:00', description: '소그룹 모임' }
+    { name: '성장이 있는 소모임', time: '오후 1:00', description: '소그룹 모임' },
+    { name: '수요 예배', time: '오후 7:30', description: '수요 저녁 예배' }
   ])
   
   const [weekdayWorship, setWeekdayWorship] = useState<WorshipTime[]>([
@@ -79,35 +80,56 @@ export default function Home() {
   useEffect(() => {
     // localStorage에서 데이터 로드
     const loadData = () => {
-      const savedMinistries = localStorage.getItem('ministries')
-      if (savedMinistries) {
-        setMinistries(JSON.parse(savedMinistries))
-      }
+      try {
+        const savedMinistries = localStorage.getItem('ministries')
+        if (savedMinistries) {
+          setMinistries(JSON.parse(savedMinistries))
+        }
 
-      const savedNews = localStorage.getItem('news_items')
-      if (savedNews) {
-        setNewsItems(JSON.parse(savedNews))
-      }
+        const savedNews = localStorage.getItem('news_items')
+        if (savedNews) {
+          setNewsItems(JSON.parse(savedNews))
+        }
 
-      const savedSermons = localStorage.getItem('sermons')
-      if (savedSermons) {
-        setSermons(JSON.parse(savedSermons))
-      }
+        const savedSermons = localStorage.getItem('sermons')
+        if (savedSermons) {
+          const parsedSermons = JSON.parse(savedSermons)
+          console.log('Loaded sermons from localStorage:', parsedSermons)
+          setSermons(parsedSermons)
+        }
 
-      const savedChurchInfo = localStorage.getItem('church_info')
-      if (savedChurchInfo) {
-        setChurchInfo(JSON.parse(savedChurchInfo))
-      }
+        const savedChurchInfo = localStorage.getItem('church_info')
+        if (savedChurchInfo) {
+          setChurchInfo(JSON.parse(savedChurchInfo))
+        }
 
-      const savedWorshipTimes = localStorage.getItem('worship_times')
-      if (savedWorshipTimes) {
-        const times = JSON.parse(savedWorshipTimes)
-        if (times.sunday) setSundayWorship(times.sunday)
-        if (times.weekday) setWeekdayWorship(times.weekday)
+        const savedWorshipTimes = localStorage.getItem('worship_times')
+        if (savedWorshipTimes) {
+          const times = JSON.parse(savedWorshipTimes)
+          if (times.sunday) setSundayWorship(times.sunday)
+          if (times.weekday) setWeekdayWorship(times.weekday)
+        }
+      } catch (error) {
+        console.error('Error loading data from localStorage:', error)
       }
     }
 
     loadData()
+    
+    // localStorage 변경 감지
+    const handleStorageChange = () => {
+      loadData()
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    
+    // 5초마다 데이터 새로고침 (같은 탭에서 변경사항 반영)
+    const interval = setInterval(loadData, 5000)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(interval)
+    }
   }, [])
 
   // 유튜브 URL에서 비디오 ID 추출
@@ -442,27 +464,29 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-              <div className="flex items-start space-x-3">
-                <div className="text-2xl">📍</div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-primary mb-1">주소</h4>
-                  <p className="text-sm text-gray-600 break-keep">{churchInfo.address} {churchInfo.addressDetail}</p>
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+              <div className="card p-6">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="text-3xl">📍</div>
+                  <h4 className="font-bold text-primary text-lg">주소</h4>
                 </div>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  {churchInfo.address}<br />{churchInfo.addressDetail}
+                </p>
               </div>
-              <div className="flex items-start space-x-3">
-                <div className="text-2xl">📞</div>
-                <div>
-                  <h4 className="font-bold text-primary mb-1">전화</h4>
-                  <p className="text-sm text-gray-600">{churchInfo.phone}</p>
+              <div className="card p-6">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="text-3xl">📞</div>
+                  <h4 className="font-bold text-primary text-lg">전화</h4>
                 </div>
+                <p className="text-sm text-gray-600">{churchInfo.phone}</p>
               </div>
-              <div className="flex items-start space-x-3">
-                <div className="text-2xl">✉️</div>
-                <div>
-                  <h4 className="font-bold text-primary mb-1">이메일</h4>
-                  <p className="text-sm text-gray-600">{churchInfo.email}</p>
+              <div className="card p-6">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="text-3xl">✉️</div>
+                  <h4 className="font-bold text-primary text-lg">이메일</h4>
                 </div>
+                <p className="text-sm text-gray-600 break-all">{churchInfo.email}</p>
               </div>
             </div>
           </div>
